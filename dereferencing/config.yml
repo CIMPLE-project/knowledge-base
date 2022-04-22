@@ -1,0 +1,6 @@
+host: data.cimple.eu # required
+port: 4890 # default 8889
+admin: troncy@eurecom.fr # default you@example.org
+apache_conf: source.conf # if you want to customise the apache conf
+list: # default []
+  - category
