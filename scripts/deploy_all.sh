@@ -10,7 +10,7 @@ echo "Loading prefixes..."
 # Load dumps
 for d in "${VIRTUOSO_DUMPS_PATH}/"*/; do
   base=$(basename "${d}")
-  (cd "${SCRIPTPATH}" && ./load.sh -g "http://data.cimple.eu/${base}" "${base}" "*.ttl")
+  (cd "${SCRIPTPATH}" && ./load.sh -c -g "http://data.cimple.eu/${base}" "${base}" "*.ttl")
 done
 
 # Load patches
