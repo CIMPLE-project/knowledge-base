@@ -3,7 +3,6 @@
 # Constants
 PROJECT_PATH=${PROJECT_PATH:-"/home/semantic/cimple"}
 KB_PATH=${KB_PATH:-"${PROJECT_PATH}/knowledge-base"}
-VIRTUOSO_DUMPS_PATH=${VIRTUOSO_DUMPS_PATH:-"/var/docker/cimple/virtuoso/data/dumps"}
 CONTAINER_NAME=${CONTAINER_NAME:-"cimple-virtuoso"}
 LOG_FILE=${LOG_FILE:-"load.log"}
 
