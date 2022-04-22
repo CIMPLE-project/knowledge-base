@@ -7,10 +7,6 @@ VIRTUOSO_DUMPS_PATH=${VIRTUOSO_DUMPS_PATH:-"/var/docker/cimple/virtuoso/data/dum
 echo "Loading prefixes..."
 (cd "${SCRIPTPATH}" && ./load_prefixes.sh)
 
-# Load commons
-echo "Loading commons..."
-(cd "${SCRIPTPATH}" && ./load_commons.sh)
-
 # Load dumps
 for d in "${VIRTUOSO_DUMPS_PATH}/"*/; do
   base=$(basename "${d}")
