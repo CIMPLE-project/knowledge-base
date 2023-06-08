@@ -4,3 +4,15 @@ admin: troncy@eurecom.fr # default you@example.org
 apache_conf: source.conf # if you want to customise the apache conf
 list: # default []
   - category
+  - afp
+  - mentions
+  - birdwatch
+  - snopes
+  - tweets
+  - claim_reviews
+  - claims
+  - organization
+  - rating
+  - tweets_snopes
+  - conspiracies
+  - review
