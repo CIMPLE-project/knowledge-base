@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo "Url: $url"
+
+TagName="${url##*/}"
+DownloadURL="${url/tag/download}/${TagName}.zip"
+
+[ -z "${TagName}" ] && { echo "TagName not found from URL"; exit 1; }
+
+# Download the archive
+if [ ! -d "/data/${TagName}" ]; then
+  echo "$DownloadURL"
+  curl -L -o "${TagName}.zip" "$DownloadURL"
+  unzip "${TagName}.zip" -d /data
+fi
+
+# Clone the converter scripts
+if [ ! -d "./converter" ]; then
+  git clone https://github.com/CIMPLE-project/converter.git converter
+  cd converter/
+else
+  cd converter/
+  git pull
+fi
+
+# Convert to RDF/Turtle
+[ -d /data/cache ] || mkdir /data/cache
+python update_KG.py -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
+
+# Deploy to KB
+curl --digest --user dba:deployclaimreview. --verbose --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://claimreview-kb.tools.eurecom.fr" -T "/data/claimreview-kg_${TagName}.ttl"
+
+# Cleanup
+rm -rf "/data/${TagName}"
+rm "/data/claimreview-kg_${TagName}.ttl"

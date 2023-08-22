@@ -1,1 +1,3 @@
 cr_data/
+.env
+webhookd/.htpasswd

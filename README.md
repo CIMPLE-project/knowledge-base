@@ -85,6 +85,46 @@ List of parameters:
 -c --clear      Clear graph before loading
 ```
 
+## Webhook Setup
+
+1. Copy `.env.example` into a new file named `.env` and edit the environment variables accordingly:
+    * `VIRTUOSO_URL`: URL to the Virtuoso server (eg. https://data.cimple.eu)
+    * `DBA_PASSWORD`: Password for the Virtuoso instance (username is "dba")
+1. Generate a password for the webhook server:
+    ```bash
+    htpasswd -B -c ./webhookd/.htpasswd api
+    ```
+1. Build the docker image:
+    ```bash
+    cd ./webhookd
+    docker build -t cimple/webhookd .
+    ```
+1. Run webhookd container:
+    ```bash
+    docker run --name cimple-webhookd \
+      -p 8880:8080 \
+      -e WHD_PASSWD_FILE=/etc/webhookd/.htpasswd \
+      -e WHD_HOOK_TIMEOUT=21600 \
+      -e SPARQL_UPDATE=true \
+      -v ./webhookd/scripts:/scripts \
+      -v ./webhookd/.htpasswd:/etc/webhookd/.htpasswd \
+      -d cimple/webhookd
+    ```
+
+*Webhooks list:*
+
+* http://localhost:8880/redeploy - Executes the delpoyment script.
+* http://localhost:8880/status - Returns "OK" if the service is running.
+
+*Example:*
+
+```bash
+curl -u api:$API_PASSWORD http://localhost:8880/status
+curl -u api:$API_PASSWORD -XPOST http://localhost:8880/redeploy?url=https%3A%2F%2Fgithub.com%2FMartinoMensio%2Fclaimreview-data%2Freleases%2Ftag%2F2023_08_22
+```
+
+(replace `$API_PASSWORD` with the password you generated during Setup step)
+
 ## List of RDF namespaces
 
 These prefixes are commonly used on this project:
