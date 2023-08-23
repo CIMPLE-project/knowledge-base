@@ -29,7 +29,7 @@ fi
 python update_KG.py -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
 
 # Deploy to KB
-curl --digest --user dba:deployclaimreview. --verbose --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://claimreview-kb.tools.eurecom.fr" -T "/data/claimreview-kg_${TagName}.ttl"
+curl --digest --user dba:deployclaimreview. --verbose --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/claimreview" -T "/data/claimreview-kg_${TagName}.ttl"
 
 # Cleanup
 rm -rf "/data/${TagName}"
