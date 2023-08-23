@@ -106,8 +106,9 @@ List of parameters:
       -e WHD_PASSWD_FILE=/etc/webhookd/.htpasswd \
       -e WHD_HOOK_TIMEOUT=21600 \
       -e SPARQL_UPDATE=true \
-      -v ./webhookd/scripts:/scripts \
-      -v ./webhookd/.htpasswd:/etc/webhookd/.htpasswd \
+      -v $(pwd)/webhookd/scripts:/scripts \
+      -v $(pwd)/webhookd/cache:/data/cache \
+      -v $(pwd)/webhookd/.htpasswd:/etc/webhookd/.htpasswd \
       -d cimple/webhookd
     ```
 
