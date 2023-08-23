@@ -5,6 +5,7 @@ echo "Url: $url"
 TagName="${url##*/}"
 DownloadURL="${url/tag/download}/${TagName}.zip"
 
+[ -z "${VIRTUOSO_URL}" ] && { echo "Missing environment variable VIRTUOSO_URL"; exit 1; }
 [ -z "${TagName}" ] && { echo "TagName not found from URL"; exit 1; }
 
 # Download the archive
