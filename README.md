@@ -87,9 +87,6 @@ List of parameters:
 
 ## Webhook Setup
 
-1. Copy `.env.example` into a new file named `.env` and edit the environment variables accordingly:
-    * `VIRTUOSO_URL`: URL to the Virtuoso server (eg. https://data.cimple.eu)
-    * `DBA_PASSWORD`: Password for the Virtuoso instance (username is "dba")
 1. Generate a password for the webhook server:
     ```bash
     htpasswd -B -c ./webhookd/.htpasswd api
@@ -103,9 +100,10 @@ List of parameters:
     ```bash
     docker run --name cimple-webhookd \
       -p 8880:8080 \
+      -e DBA_PASSWORD=myDbaPassword
+      -e VIRTUOSO_URL=https://data.cimple.eu \
       -e WHD_PASSWD_FILE=/etc/webhookd/.htpasswd \
       -e WHD_HOOK_TIMEOUT=21600 \
-      -e SPARQL_UPDATE=true \
       -v $(pwd)/webhookd/scripts:/scripts \
       -v $(pwd)/webhookd/cache:/data/cache \
       -v $(pwd)/webhookd/.htpasswd:/etc/webhookd/.htpasswd \
