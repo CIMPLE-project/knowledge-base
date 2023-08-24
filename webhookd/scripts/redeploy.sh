@@ -17,20 +17,25 @@ fi
 
 # Clone the converter scripts
 if [ ! -d "./converter" ]; then
+  echo "Cloning converter scripts..."
   git clone https://github.com/CIMPLE-project/converter.git converter
   cd converter/
 else
+  echo "Updating converter scripts..."
   cd converter/
   git pull
 fi
 
 # Convert to RDF/Turtle
+echo "Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
 python update_KG.py -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
 
 # Deploy to KB
+echo "Deploying to KB..."
 curl --digest --user dba:deployclaimreview. --verbose --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/claimreview" -T "/data/claimreview-kg_${TagName}.ttl"
 
 # Cleanup
+echo "Cleaning up..."
 rm -rf "/data/${TagName}"
 rm "/data/claimreview-kg_${TagName}.ttl"
