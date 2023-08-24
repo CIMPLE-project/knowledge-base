@@ -100,7 +100,7 @@ List of parameters:
     ```bash
     docker run --name cimple-webhookd \
       -p 8880:8080 \
-      -e DBA_PASSWORD=myDbaPassword
+      -e DBA_PASSWORD=myDbaPassword \
       -e VIRTUOSO_URL=https://data.cimple.eu \
       -e WHD_PASSWD_FILE=/etc/webhookd/.htpasswd \
       -e WHD_HOOK_TIMEOUT=21600 \
