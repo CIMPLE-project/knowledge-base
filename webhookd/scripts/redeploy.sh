@@ -12,7 +12,7 @@ DownloadURL="${url/tag/download}/${TagName}.zip"
 if [ ! -d "/data/${TagName}" ]; then
   echo "$DownloadURL"
   curl -L -o "/data/${TagName}.zip" "$DownloadURL"
-  unzip "${TagName}.zip" -d /data
+  unzip "/data/${TagName}.zip" -d /data
 fi
 
 # Clone the converter scripts
