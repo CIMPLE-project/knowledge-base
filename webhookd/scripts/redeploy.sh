@@ -11,7 +11,7 @@ DownloadURL="${url/tag/download}/${TagName}.zip"
 # Download the archive
 if [ ! -d "/data/${TagName}" ]; then
   echo "$DownloadURL"
-  curl -L -o "${TagName}.zip" "$DownloadURL"
+  curl -L -o "/data/${TagName}.zip" "$DownloadURL"
   unzip "${TagName}.zip" -d /data
 fi
 
@@ -38,4 +38,5 @@ curl --digest --user dba:deployclaimreview. --verbose --url "${VIRTUOSO_URL}/spa
 # Cleanup
 echo "Cleaning up..."
 rm -rf "/data/${TagName}"
+rm "/data/${TagName}.zip"
 rm "/data/claimreview-kg_${TagName}.ttl"
