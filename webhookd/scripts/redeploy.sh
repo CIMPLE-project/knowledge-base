@@ -30,13 +30,18 @@ fi
 echo "Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
 python update_KG.py -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
+[ -d /data/chunks ] || mkdir /data/chunks
+python rdf_splitter.py "/data/claimreview-kg_${TagName}.ttl" 100000 "/data/chunks"
 
 # Deploy to KB
-echo "Deploying to KB..."
-curl --digest --user dba:deployclaimreview. --verbose --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/claimreview" -T "/data/claimreview-kg_${TagName}.ttl"
+for chunkfile in /data/chunks/*.ttl; do
+  echo "Deploying ${chunkfile} to KB..."
+  curl --digest --user "dba:${DBA_PASSWORD}" -XPOST --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/claimreview" -T "${chunkfile}"
+done
 
 # Cleanup
 echo "Cleaning up..."
 rm -rf "/data/${TagName}"
+rm -rf "/data/chunks"
 rm "/data/${TagName}.zip"
 rm "/data/claimreview-kg_${TagName}.ttl"

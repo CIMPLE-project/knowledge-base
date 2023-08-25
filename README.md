@@ -13,13 +13,13 @@ This section covers the steps required to set up a new Knowlede Base for the fir
     cd docker-virtuoso
     ```
 
-2. Build the docker image.
+1. Build the docker image.
 
     ```bash
     docker build -t d2klab/virtuoso .
     ```
 
-3. Run the docker image.
+1. Run the docker image.
 
     **Note:** make sure to replace `/var/docker/cimple/virtuoso/data` with the volume path where you want the Virtuoso database to be stored. It is also the path which will be used to copy the RDF files you wish to load into the Knowledge Base.
 
@@ -88,15 +88,20 @@ List of parameters:
 ## Webhook Setup
 
 1. Generate a password for the webhook server:
+
     ```bash
     htpasswd -B -c ./webhookd/.htpasswd api
     ```
+
 1. Build the docker image:
+
     ```bash
     cd ./webhookd
     docker build -t cimple/webhookd .
     ```
+
 1. Run webhookd container:
+
     ```bash
     docker run --name cimple-webhookd \
       -p 8880:8080 \
