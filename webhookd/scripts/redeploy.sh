@@ -11,7 +11,7 @@ DownloadURL="${url/tag/download}/${TagName}.zip"
 # Download the archive
 if [ ! -d "/data/${TagName}" ]; then
   echo "$DownloadURL"
-  curl -L -o "/data/${TagName}.zip" "$DownloadURL"
+  curl -sS -L -o "/data/${TagName}.zip" "$DownloadURL"
   unzip "/data/${TagName}.zip" -d /data
 fi
 
