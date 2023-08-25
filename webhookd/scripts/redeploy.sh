@@ -29,7 +29,10 @@ fi
 # Convert to RDF/Turtle
 echo "Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
-python update_KG.py -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
+python update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
+
+# Split into chunks
+echo "Splitting into chunks..."
 [ -d /data/chunks ] || mkdir /data/chunks
 python rdf_splitter.py "/data/claimreview-kg_${TagName}.ttl" 100000 "/data/chunks"
 
