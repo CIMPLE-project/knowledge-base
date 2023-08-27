@@ -16,13 +16,13 @@ if [ ! -d "/data/${TagName}" ]; then
 fi
 
 # Clone the converter scripts
-if [ ! -d "./converter" ]; then
+if [ ! -d "/data/converter" ]; then
   echo "Cloning converter scripts..."
-  git clone https://github.com/CIMPLE-project/converter.git converter
-  cd converter/
+  git clone https://github.com/CIMPLE-project/converter.git /data/converter
+  cd /data/converter
 else
   echo "Updating converter scripts..."
-  cd converter/
+  cd /data/converter
   git pull
 fi
 
