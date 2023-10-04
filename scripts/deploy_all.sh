@@ -8,10 +8,13 @@ echo "Loading prefixes..."
 (cd "${SCRIPTPATH}" && ./load_prefixes.sh)
 
 # Load dumps
-for d in "${VIRTUOSO_DUMPS_PATH}/"*/; do
+for d in "${VIRTUOSO_DUMPS_PATH}/graph/"*/; do
   base=$(basename "${d}")
-  (cd "${SCRIPTPATH}" && ./load.sh -c -g "http://data.cimple.eu/graph/${base}" "${base}" "*.ttl")
+  (cd "${SCRIPTPATH}" && ./load.sh -c -g "http://data.cimple.eu/graph/${base}" "graph/${base}" "*.ttl")
 done
+
+# Load ontology
+(cd "${SCRIPTPATH}" && ./load.sh -c -g "http://data.cimple.eu/ontology" "ontology" "*.ttl")
 
 # Load patches
 echo "Loading patches..."
