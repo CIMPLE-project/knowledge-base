@@ -39,7 +39,7 @@ python -u rdf_splitter.py "/data/claimreview-kg_${TagName}.ttl" 50000 "/data/chu
 # Deploy to KB
 for chunkfile in /data/chunks/*.ttl; do
   echo "[REDEPLOY] Deploying ${chunkfile} to KB..."
-  curl --digest --user "dba:${DBA_PASSWORD}" -XPOST --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/claimreview" -T "${chunkfile}"
+  curl --digest --user "dba:${DBA_PASSWORD}" -XPOST --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/graph/claimreview" -T "${chunkfile}"
 done
 
 # Cleanup
