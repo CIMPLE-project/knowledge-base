@@ -16,6 +16,9 @@ done
 # Load ontology
 (cd "${SCRIPTPATH}" && ./load.sh -c -g "http://data.cimple.eu/ontology" "ontology" "*.ttl")
 
+# Load vocabulary
+(cd "${SCRIPTPATH}" && ./load.sh -c -g "http://data.cimple.eu/vocabulary" "vocabulary" "*.ttl")
+
 # Load patches
 echo "Loading patches..."
 (cd "${SCRIPTPATH}" && ./load_patches.sh)
