@@ -11,3 +11,5 @@ list: # default []
   - rating
   - claim
   - entity
+  - emotion
+  - conspiracy
