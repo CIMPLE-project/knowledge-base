@@ -26,6 +26,9 @@ else
   git pull
 fi
 
+# Install dependencies
+pip install -r requirements.txt
+
 # Convert to RDF/Turtle
 echo "[REDEPLOY] Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
