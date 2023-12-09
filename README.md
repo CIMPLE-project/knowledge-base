@@ -2,6 +2,8 @@
 
 This repository contains scripts to deploy the Knowledge Base for project CIMPLE.
 
+The data being loaded is available at https://github.com/CIMPLE-project/knowledge-base/releases and is updated on a daily basis.
+
 ## Initializing the Knowledge Base
 
 This section covers the steps required to set up a new Knowlede Base for the first time.
