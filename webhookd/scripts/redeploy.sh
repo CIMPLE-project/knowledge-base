@@ -27,7 +27,7 @@ else
 fi
 
 # Install dependencies
-pip install -r requirements.txt
+pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 
 # Convert to RDF/Turtle
 echo "[REDEPLOY] Converting to RDF/Turtle..."
