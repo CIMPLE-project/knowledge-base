@@ -34,7 +34,6 @@ This section covers the steps required to set up a new Knowlede Base for the fir
       -e VIRT_SPARQL_MaxQueryCostEstimationTime=-1 \
       -e VIRT_SPARQL_MaxQueryExecutionTime=-1 \
       -v /var/docker/cimple/virtuoso/data:/data \
-      -v /data/cimple-factors-models:/data/cimple-factors-models
       -d d2klab/virtuoso
     ```
 
@@ -115,6 +114,7 @@ List of parameters:
       -v $(pwd)/webhookd/scripts:/scripts \
       -v $(pwd)/webhookd/cache:/data/cache \
       -v $(pwd)/webhookd/.htpasswd:/etc/webhookd/.htpasswd \
+      -v /data/cimple-factors-models:/data/cimple-factors-models
       -d cimple/webhookd
     ```
 
