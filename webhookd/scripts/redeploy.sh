@@ -26,6 +26,8 @@ else
   git pull
 fi
 
+export PYTHONUNBUFFERED=1
+
 # Install dependencies
 pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 
