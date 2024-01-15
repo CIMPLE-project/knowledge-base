@@ -1,5 +1,6 @@
-FROM ncarlier/webhookd
-USER root
-RUN apk add curl git python3-dev py3-pip
+FROM python:3.10
 USER $USER
+RUN curl -s https://raw.githubusercontent.com/ncarlier/webhookd/master/install.sh | bash
 RUN mkdir -p /data
+ENV PATH="${PATH}:/root/.local/bin"
+CMD [ "webhookd" ]
