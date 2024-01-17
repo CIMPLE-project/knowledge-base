@@ -34,7 +34,7 @@ pip install --extra-index-url https://download.pytorch.org/whl/cpu -q -r require
 # Convert to RDF/Turtle
 echo "[REDEPLOY] Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
-python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.nt" -f "nt" -c "/data/cache" -g "/data/claim-review.ttl"
+python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.nt" -f "nt" -c "/data/cache" -g "/data/claim-review.nt"
 
 # Split into chunks
 echo "[REDEPLOY] Splitting into chunks..."
