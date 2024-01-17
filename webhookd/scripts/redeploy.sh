@@ -47,9 +47,11 @@ for chunkfile in /data/chunks/*.nt; do
   python -u rdf_uploader.py "${chunkfile}"
 done
 
+# Create release
+. /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt"
+
 # Cleanup
 echo "[REDEPLOY] Cleaning up..."
 rm -rf "/data/${TagName}"
 rm -rf "/data/chunks"
 rm "/data/${TagName}.zip"
-rm "/data/claimreview-kg_${TagName}.nt"
