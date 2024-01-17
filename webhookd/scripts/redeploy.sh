@@ -29,7 +29,7 @@ fi
 export PYTHONUNBUFFERED=1
 
 # Install dependencies
-pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+pip install --extra-index-url https://download.pytorch.org/whl/cpu -q -r requirements.txt
 
 # Convert to RDF/Turtle
 echo "[REDEPLOY] Converting to RDF/Turtle..."
