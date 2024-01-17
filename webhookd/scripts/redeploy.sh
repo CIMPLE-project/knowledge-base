@@ -34,15 +34,15 @@ pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requiremen
 # Convert to RDF/Turtle
 echo "[REDEPLOY] Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
-python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.ttl" -c "/data/cache"
+python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.nt" -f "nt" -c "/data/cache"
 
 # Split into chunks
 echo "[REDEPLOY] Splitting into chunks..."
 [ -d /data/chunks ] || mkdir /data/chunks
-python -u rdf_splitter.py "/data/claimreview-kg_${TagName}.ttl" 50000 "/data/chunks"
+python -u rdf_splitter.py "/data/claimreview-kg_${TagName}.nt" 50000 "/data/chunks"
 
 # Deploy to KB
-for chunkfile in /data/chunks/*.ttl; do
+for chunkfile in /data/chunks/*.nt; do
   echo "[REDEPLOY] Deploying ${chunkfile} to KB..."
   curl --digest --user "dba:${DBA_PASSWORD}" -XPOST --url "${VIRTUOSO_URL}/sparql-graph-crud-auth?graph=http://data.cimple.eu/graph/claimreview" -T "${chunkfile}"
 done
@@ -52,4 +52,4 @@ echo "[REDEPLOY] Cleaning up..."
 rm -rf "/data/${TagName}"
 rm -rf "/data/chunks"
 rm "/data/${TagName}.zip"
-rm "/data/claimreview-kg_${TagName}.ttl"
+rm "/data/claimreview-kg_${TagName}.nt"
