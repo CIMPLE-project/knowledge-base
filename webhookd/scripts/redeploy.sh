@@ -39,7 +39,7 @@ python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagNa
 # Split into chunks
 echo "[REDEPLOY] Splitting into chunks..."
 [ -d /data/chunks ] || mkdir /data/chunks
-python -u rdf_splitter.py "/data/claimreview-kg_${TagName}.nt" 50000 "/data/chunks"
+python -u rdf_splitter.py -f "nt" "/data/claimreview-kg_${TagName}.nt" 50000 "/data/chunks"
 
 # Deploy to KB
 for chunkfile in /data/chunks/*.nt; do
