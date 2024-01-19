@@ -63,14 +63,23 @@ upload_release_file() {
     fi
 }
 
+# Check for parameters
+if [ -z "$1" ]; then
+    echo "Missing parameter: file_path"
+    exit 1
+fi
+if [ -z "$2" ]; then
+    echo "Missing parameter: release_name"
+    exit 1
+fi
+
 # Create a gzip file and upload it into a new release
-dt=$(date '+%Y-%m-%d')
-# Get the extension of the file
-ext="${1##*.}"
-compressed_file="${dt}.${ext}.gz"
+release_name="${2}"
+filename=$(basename "${1}")
+compressed_file="${filename}.gz"
 echo "Compressing ${1} into ${compressed_file}"
 gzip -c "${1}" > "${compressed_file}"
-if create_release "CIMPLE-project" "knowledge-base" "${GITHUB_TOKEN}" "${dt}" "${dt}" ; then
+if create_release "CIMPLE-project" "knowledge-base" "${GITHUB_TOKEN}" "${release_name}" "${release_name}" ; then
     upload_release_file "${GITHUB_TOKEN}" "${compressed_file}" "${compressed_file}"
     rm "upload.json"
     rm "release.json"

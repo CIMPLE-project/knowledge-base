@@ -48,7 +48,7 @@ for chunkfile in /data/chunks/*.nt; do
 done
 
 # Create release
-. /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt"
+. /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}"
 
 # Cleanup
 echo "[REDEPLOY] Cleaning up..."
