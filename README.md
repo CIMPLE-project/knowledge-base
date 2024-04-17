@@ -4,6 +4,13 @@ This repository contains scripts to deploy the Knowledge Base for project CIMPLE
 
 The data being loaded is available at https://github.com/CIMPLE-project/knowledge-base/releases and is updated on a daily basis.
 
+Further documentation about the data model and example SPARQL queries can be accessed [here](./Documentation.md).
+
+The code to retrieve the body of the claim review from the specified url is available [here](https://github.com/CIMPLE-project/claimreview-text-extractor).
+
+Our URI pattern is specified [here](https://github.com/CIMPLE-project/converter/blob/main/URI-patterns.md).
+
+
 ## Initializing the Knowledge Base
 
 This section covers the steps required to set up a new Knowlede Base for the first time.
