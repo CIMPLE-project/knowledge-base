@@ -10,6 +10,7 @@ The code to retrieve the body of the claim review from the specified url is avai
 
 Our URI pattern is specified [here](https://github.com/CIMPLE-project/converter/blob/main/URI-patterns.md).
 
+The code that converts the daily Claim Reviews into RDF triples can be accessed [here](https://github.com/CIMPLE-project/converter).
 
 ## Initializing the Knowledge Base
 
