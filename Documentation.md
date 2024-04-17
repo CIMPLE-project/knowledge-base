@@ -5,11 +5,11 @@
 
 The data model of the Cimple KG is represented in figure [CimpleKG_data_model.png](./CimpleKG_data_model.png).
 In yellow are the classes and properties from the [Schema.org](https://schema.org/) vocabulary that we re-use.
-In green are the properties that we define in this work. They are used to represent the factors and the normalized ratings. The Cimple ontology is described [here](https://github.com/CIMPLE-project/converter/blob/main/cimple-ontology.ttl)
+In green are the properties that we define in this work. They are used to represent the factors and the normalized ratings. The Cimple ontology is described [here](https://github.com/CIMPLE-project/converter/blob/main/cimple-ontology.ttl).
 
 ## Example SPARQL Queries
 
-A SPARQL endpoint is available at [https://data.cimple.eu/sparql](https://data.cimple.eu/sparql). We describe here some queries that can serve as examples or template. They showcase some usecase of Cimple KG.
+A SPARQL endpoint is available at [https://data.cimple.eu/sparql](https://data.cimple.eu/sparql). We share queries that showcase some use-case of Cimple KG that can serve as examples or template.
 
 ### [Most mentioned entities](https://data.cimple.eu/sparql?default-graph-uri=&qtxt=PREFIX+schema%3A%3Chttp%3A%2F%2Fschema.org%2F%3E%0D%0ASELECT+%3Fent+COUNT(%3Fdoc)+as+%3Fnum%0D%0AWHERE+{%0D%0A++++%3Fdoc+schema%3Amentions+%3Fent+.%0D%0A}%0D%0AGROUP+BY+(%3Fent)%0D%0AORDER+BY+DESC+(%3Fnum)%0D%0ALIMIT+100&format=text%2Fhtml&should-sponge=&timeout=0&signal_void=on)
 ```
