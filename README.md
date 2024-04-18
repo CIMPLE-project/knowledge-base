@@ -1,10 +1,22 @@
-# CIMPLE Knowledge Graph
+# 📚 CIMPLE Knowledge Graph (CimpleKG)
 
-This repository contains scripts to deploy the Knowledge Graph developed within the [CIMPLE project](https://www.chistera.eu/projects/cimple).
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+
+
+> The CIMPLE Knowledge Graph (CimpleKG) is a continiousely updated large knowledge graph that has been created to help researchers combat misinformation. CimpleKG links information from fact-checking organizations with other datasets about misinformation, giving researchers a more comprehensive view of the problem. 
+>
+> This repository contains scripts to deploy the Knowledge Graph developed within the [CIMPLE project](https://www.chistera.eu/projects/cimple).
+
+![Claim reviews per countries (11/04/2024 data)](./CimpleKG_claimreviews_2024_04_11.png)
+
 
 The data being loaded is available at https://github.com/CIMPLE-project/knowledge-base/releases and is updated on a daily (nightly) basis.
-
-Further documentation about the data model and example SPARQL queries can be accessed in the [documentation page](./Documentation.md).
 
 The source code to retrieve the body of the claim review from the specified url is available in the [claimreview-text-extractor repository](https://github.com/CIMPLE-project/claimreview-text-extractor).
 
@@ -12,7 +24,39 @@ We fully document the [URI design pattern](https://github.com/CIMPLE-project/con
 
 The code that converts the daily updated Claim Reviews into RDF is available in the [converter repository](https://github.com/CIMPLE-project/converter).
 
-## Initializing the Knowledge Graph
+The Claim Reviews data integrated in the CimpleKG is available on the [claimreview-data repository](https://github.com/MartinoMensio/claimreview-data).
+
+
+## 🔍 Knowledge Graph Overview and Documentation
+CimpleKG links daily updated data from 70+ fact-checking organisations with over 200k+ documents from static misinformation datasets. The knowledge graph is augmented with textual features and entities extracted from the textual data integrated into the graph. The knowledge graph contains more than 15m triples, including 263k+ distinct entities and 1m textual features with over 203k fact-checked claims, spanning 26 languages and 36 countries.
+
+A public SPARQL endpoint is available at https://data.cimple.eu/sparql and data releases are made available in this repository. The knowledge graph can be also loaded and queried locally (see *Initialising the Knowledge Graph*).
+
+SPARQL Query examples and aditional documentation can be found in the [documentation page](./Documentation.md).
+
+### RDF Namespaces
+
+CimpleKG commonly uses the following namespaces and prefixes:
+
+| Prefix | URI |
+| --- | --- |
+| dc | <http://purl.org/dc/elements/1.1/> |
+| rdf | <http://www.w3.org/1999/02/22-rdf-syntax-ns#> |
+| rnews | <http://iptc.org/std/rNews/2011-10-07#> |
+| schema | <http://schema.org/> |
+| xsd | <http://www.w3.org/2001/XMLSchema#> |
+
+They can be imported into Virtuoso through the isql interface:
+
+```
+DB.DBA.XML_SET_NS_DECL ('dc', 'http://purl.org/dc/elements/1.1/', 2);
+DB.DBA.XML_SET_NS_DECL ('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', 2);
+DB.DBA.XML_SET_NS_DECL ('rnews', 'http://iptc.org/std/rNews/2011-10-07#', 2);
+DB.DBA.XML_SET_NS_DECL ('schema', 'http://schema.org/', 2);
+DB.DBA.XML_SET_NS_DECL ('xsd', 'http://www.w3.org/2001/XMLSchema#', 2);
+```
+
+## 🚧 Initialising the Knowledge Graph
 
 This section covers the steps required to set up a new Knowlede Base for the first time.
 
@@ -45,7 +89,7 @@ This section covers the steps required to set up a new Knowlede Base for the fir
       -d d2klab/virtuoso
     ```
 
-## Loading data into the Knowledge base
+### Loading data into the Knowledge base
 
 1. Copy all your RDF files into the `dumps` folder inside the data directory (e.g., `/var/docker/cimple/virtuoso/data/dumps`).
 
@@ -64,7 +108,7 @@ This section covers the steps required to set up a new Knowlede Base for the fir
     ./deploy_all.sh
     ```
 
-## Manually loading a specific file
+### Manually loading a specific file
 
 You can also load certain files given a pattern using the [load.sh](scripts/load.sh) script.
 
@@ -95,7 +139,7 @@ List of parameters:
 -c --clear      Clear graph before loading
 ```
 
-## Webhook Setup
+### Webhook Setup
 
 1. Generate a password for the webhook server:
 
@@ -140,29 +184,7 @@ curl -u api:$API_PASSWORD -XPOST http://localhost:8880/redeploy?url=https%3A%2F%
 
 (replace `$API_PASSWORD` with the password you generated during Setup step)
 
-## List of RDF namespaces
-
-These prefixes are commonly used in this knowledge graph:
-
-| Prefix | URI |
-| - | - |
-| dc | <http://purl.org/dc/elements/1.1/> |
-| rdf | <http://www.w3.org/1999/02/22-rdf-syntax-ns#> |
-| rnews | <http://iptc.org/std/rNews/2011-10-07#> |
-| schema | <http://schema.org/> |
-| xsd | <http://www.w3.org/2001/XMLSchema#> |
-
-They can be imported into Virtuoso through the isql interface:
-
-```
-DB.DBA.XML_SET_NS_DECL ('dc', 'http://purl.org/dc/elements/1.1/', 2);
-DB.DBA.XML_SET_NS_DECL ('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', 2);
-DB.DBA.XML_SET_NS_DECL ('rnews', 'http://iptc.org/std/rNews/2011-10-07#', 2);
-DB.DBA.XML_SET_NS_DECL ('schema', 'http://schema.org/', 2);
-DB.DBA.XML_SET_NS_DECL ('xsd', 'http://www.w3.org/2001/XMLSchema#', 2);
-```
-
-## Dereferencing
+### Dereferencing
 
 The list of path to be dereferenced is in `dereferencing/config.yml`. See the full list of [URI patterns](URI.patterns.md) for reference.
 
@@ -177,7 +199,7 @@ docker exec -i "cimple-virtuoso" sh -c "isql-v -U dba -P \${DBA_PASSWORD} < /ins
 
 Read more at https://github.com/pasqLisena/list2dereference
 
-## URL Shortening
+### URL Shortening
 
 The service can be accessed at http://cimple.eurecom.fr/c/.
 
