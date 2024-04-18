@@ -1,18 +1,18 @@
-# CIMPLE Knowledge Base
+# CIMPLE Knowledge Graph
 
-This repository contains scripts to deploy the Knowledge Base for project CIMPLE.
+This repository contains scripts to deploy the Knowledge Graph developed within the [CIMPLE project](https://www.chistera.eu/projects/cimple).
 
-The data being loaded is available at https://github.com/CIMPLE-project/knowledge-base/releases and is updated on a daily basis.
+The data being loaded is available at https://github.com/CIMPLE-project/knowledge-base/releases and is updated on a daily (nightly) basis.
 
-Further documentation about the data model and example SPARQL queries can be accessed [here](./Documentation.md).
+Further documentation about the data model and example SPARQL queries can be accessed in the [documentation page](./Documentation.md).
 
-The code to retrieve the body of the claim review from the specified url is available [here](https://github.com/CIMPLE-project/claimreview-text-extractor).
+The source code to retrieve the body of the claim review from the specified url is available in the [claimreview-text-extractor repository](https://github.com/CIMPLE-project/claimreview-text-extractor).
 
-Our URI pattern is specified [here](https://github.com/CIMPLE-project/converter/blob/main/URI-patterns.md).
+We fully document the [URI design pattern](https://github.com/CIMPLE-project/converter/blob/main/URI-patterns.md) that are used to identify all objects in the knowledge graph.
 
-The code that converts the daily Claim Reviews into RDF triples can be accessed [here](https://github.com/CIMPLE-project/converter).
+The code that converts the daily updated Claim Reviews into RDF is available in the [converter repository](https://github.com/CIMPLE-project/converter).
 
-## Initializing the Knowledge Base
+## Initializing the Knowledge Graph
 
 This section covers the steps required to set up a new Knowlede Base for the first time.
 
@@ -142,7 +142,7 @@ curl -u api:$API_PASSWORD -XPOST http://localhost:8880/redeploy?url=https%3A%2F%
 
 ## List of RDF namespaces
 
-These prefixes are commonly used on this project:
+These prefixes are commonly used in this knowledge graph:
 
 | Prefix | URI |
 | - | - |
