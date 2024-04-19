@@ -13,3 +13,4 @@ list: # default []
   - entity
   - emotion
   - conspiracy
+  - meme
