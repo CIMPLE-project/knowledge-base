@@ -1,9 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Constants
-PROJECT_PATH=${PROJECT_PATH:-"/home/semantic/cimple"}
-KB_PATH=${KB_PATH:-"${PROJECT_PATH}/knowledge-base"}
-CONTAINER_NAME=${CONTAINER_NAME:-"cimple-virtuoso"}
 LOG_FILE=${LOG_FILE:-"load.log"}
 
 # $1 = path to directory which contains RDF files
@@ -14,27 +11,17 @@ delete_rdf() {
   find "$1" -name "*.n3" -type f -delete
 }
 
-# $1 = sql query to execute into the container
+# $1 = sql query to execute
 execute_sql() {
-  local containerId
   local query
   local temp_file
-
-  # Get container ID
-  containerId=$(docker ps -aqf "name=${CONTAINER_NAME}")
-  if [[ ! "${containerId}" ]]; then
-    echo "${CONTAINER_NAME}: Container not found"
-    exit 1
-  fi
-  echo "Docker container ID: ${containerId}"
 
   # Get query
   query="${1}"
   echo "-----------------"
   echo -e "${query}"
   echo "-----------------"
-  echo -e "${query}" &>> "${LOG_FILE}"
-
+  echo -e "${query}" >> "${LOG_FILE}" 2>&1
 
   # Create SQL file
   temp_file=$(mktemp)
@@ -42,13 +29,9 @@ execute_sql() {
   echo "Created temp file: ${temp_file}"
   echo -e "${1}" >> "${temp_file}"
 
-  # Copy SQL file to container
-  echo "Copying SQL file to the Docker container"
-  docker cp "${temp_file}" "${containerId}:/load_dump.sql"
-
   # Execute SQL file
-  echo "Executing SQL file through isql-v inside the Docker container"
-  docker exec -i "${containerId}" sh -c "isql-v -U dba -P \${DBA_PASSWORD} < /load_dump.sql" &>> "${LOG_FILE}"
+  echo "Executing SQL file through isql-v"
+  isql-v -U dba -P "${DBA_PASSWORD}" < "${temp_file}" >> "${LOG_FILE}" 2>&1
   echo "Query output saved to ${LOG_FILE}"
 
   # Cleanup

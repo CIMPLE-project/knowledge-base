@@ -1,5 +1,5 @@
 FROM python:3.10
-RUN apt update && apt install -y jq
+RUN apt update && apt install -y jq apache2-utils
 USER $USER
 RUN curl -s https://raw.githubusercontent.com/ncarlier/webhookd/master/install.sh | bash
 RUN mkdir -p /data

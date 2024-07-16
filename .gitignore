@@ -1,6 +1,8 @@
 .vscode
 
+*.log
 cr_data/
 .env
 webhookd/.htpasswd
 webhookd/cache/entities.json
+virtuoso-data

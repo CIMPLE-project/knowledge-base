@@ -1,0 +1,38 @@
+volumes:
+  webhookd-config:
+
+services:
+  virtuoso:
+    build:
+      context: https://github.com/D2KLab/docker-virtuoso.git
+    container_name: cimple-virtuoso
+    ports:
+      - "${VIRTUOSO_PORT}:8890"
+    environment:
+      - DBA_PASSWORD=${DBA_PASSWORD}
+      - SPARQL_UPDATE=${SPARQL_UPDATE}
+      - VIRT_SPARQL_ResultSetMaxRows=${VIRT_SPARQL_ResultSetMaxRows}
+      - VIRT_SPARQL_MaxQueryCostEstimationTime=${VIRT_SPARQL_MaxQueryCostEstimationTime}
+      - VIRT_SPARQL_MaxQueryExecutionTime=${VIRT_SPARQL_MaxQueryExecutionTime}
+    volumes:
+      - ${VIRTUOSO_DATA_PATH}:/data
+      - ./scripts:/scripts
+
+  webhookd:
+    build:
+      context: ./webhookd
+    container_name: cimple-webhookd
+    ports:
+      - "8880:8080"
+    environment:
+      - DBA_PASSWORD=${DBA_PASSWORD}
+      - WHD_PASSWD_FILE=/etc/webhookd/.htpasswd
+      - WHD_HOOK_TIMEOUT=${WHD_HOOK_TIMEOUT}
+      - WHD_LOG_HTTP_REQUEST=${WHD_LOG_HTTP_REQUEST}
+      - WHD_LOG_HOOK_OUTPUT=${WHD_LOG_HOOK_OUTPUT}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./webhookd/scripts:/scripts
+      - ./webhookd/cache:/data/cache
+      - ${CIMPLE_FACTORS_MODELS_PATH}:/data/cimple-factors-models
+      - webhookd-config:/etc/webhookd

@@ -46,7 +46,7 @@ CimpleKG commonly uses the following namespaces and prefixes:
 
 They can be imported into Virtuoso through the isql interface:
 
-```
+```sql
 DB.DBA.XML_SET_NS_DECL ('dc', 'http://purl.org/dc/elements/1.1/', 2);
 DB.DBA.XML_SET_NS_DECL ('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', 2);
 DB.DBA.XML_SET_NS_DECL ('rnews', 'http://iptc.org/std/rNews/2011-10-07#', 2);
@@ -58,52 +58,57 @@ DB.DBA.XML_SET_NS_DECL ('xsd', 'http://www.w3.org/2001/XMLSchema#', 2);
 
 This section covers the steps required to set up a new Knowlede Base for the first time.
 
-1. Clone [D2KLab/docker-virtuoso](https://github.com/D2KLab/docker-virtuoso) repository.
+1. Clone this repository.
 
    ```bash
-   git clone https://github.com/D2KLab/docker-virtuoso.git
-   cd docker-virtuoso
+   git clone https://github.com/CIMPLE-project/knowledge-base.git
+   cd knowledge-base
    ```
 
-1. Build the docker image.
+1. Copy the `.env.example` file to `.env` and edit it to set the environment variables accordingly.
+
+   - `DBA_PASSWORD`: Password for the Virtuoso database.
+   - `SPARQL_UPDATE`: Enable SPARQL update queries.
+   - `VIRT_SPARQL_ResultSetMaxRows`: Maximum number of rows to return in a SPARQL query.
+   - `VIRT_SPARQL_MaxQueryCostEstimationTime`: Maximum time to estimate the cost of a SPARQL query.
+   - `VIRT_SPARQL_MaxQueryExecutionTime`: Maximum time to execute a SPARQL query.
+   - `VIRTUOSO_DATA_PATH`: Path to the Virtuoso data directory.
+   - `VIRTUOSO_PORT`: Port to expose the Virtuoso database.
+   - `WHD_HOOK_TIMEOUT`: Timeout for the webhook server.
+   - `GITHUB_TOKEN`: GitHub token to create the [releases](https://github.com/CIMPLE-project/knowledge-base/releases).
+   - `CIMPLE_FACTORS_MODELS_PATH`: Path to the CIMPLE factors models.
+
+1. Run docker compose to start the Virtuoso database and the webhook server.
 
    ```bash
-   docker build -t d2klab/virtuoso .
+   docker compose up -d
    ```
 
-1. Run the docker image.
+1. Generate a password for the webhook server and restart the service.
 
-   **Note:** make sure to replace `/var/docker/cimple/virtuoso/data` with the volume path where you want the Virtuoso database to be stored. It is also the path which will be used to copy the RDF files you wish to load into the Knowledge Base.
+   This step is optional but recommended if you plan to expose the webhook server to the internet.
 
    ```bash
-   docker run --name cimple-virtuoso \
-     -p 8890:8890 -p 1111:1111 \
-     -e DBA_PASSWORD=myDbaPassword \
-     -e SPARQL_UPDATE=true \
-     -e VIRT_SPARQL_ResultSetMaxRows=-1 \
-     -e VIRT_SPARQL_MaxQueryCostEstimationTime=-1 \
-     -e VIRT_SPARQL_MaxQueryExecutionTime=-1 \
-     -v /var/docker/cimple/virtuoso/data:/data \
-     -d d2klab/virtuoso
+   docker compose exec webhookd htpasswd -B -c /etc/webhookd/.htpasswd api
+   docker compose restart webhookd
    ```
 
 ### Loading data into the Knowledge base
 
-1. Copy all your RDF files into the `dumps` folder inside the data directory (e.g., `/var/docker/cimple/virtuoso/data/dumps`).
+1. Copy all your RDF files into a `dumps` folder inside the data directory (defined by `VIRTUOSO_DATA_PATH` in the `.env` file).
 
-   Directory structure example:
+   Directory structure example (in this case `VIRTUOSO_DATA_PATH` is set to `/var/docker/cimple/virtuoso/data`):
 
    - `/var/docker/cimple/virtuoso/data/dumps/`
      - `iptc/*.ttl`
      - `agencefrancepresse/*.ttl`
 
-2. Run the following script to load all dumps:
+1. Run the following command to load all dumps:
 
    The script [deploy_all.sh](scripts/deploy_all.sh) will initialize the prefixes, and load all the vocabularies, IPTC codes, and RDF dumps.
 
-   ```
-   cd scripts
-   ./deploy_all.sh
+   ```bash
+   docker compose exec virtuoso sh /scripts/deploy_all.sh
    ```
 
 ### Manually loading a specific file
@@ -115,15 +120,13 @@ You can also load certain files given a pattern using the [load.sh](scripts/load
 For example, the following command will load all dumps contained in the folder "agencefrancepresse", starting with "2020\_", and ending with ".ttl":
 
 ```bash
-cd scripts
-./load.sh -p5 -g "http://data.cimple.eu/agencefrancepresse/news" "agencefrancepresse" "2020_*.ttl"
+docker compose exec virtuoso sh /scripts/load.sh -p5 -g "http://data.cimple.eu/agencefrancepresse/news" "agencefrancepresse" "2020_*.ttl"
 ```
 
 To load all files from the folder "agencefrancepresse/FRA":
 
 ```bash
-cd scripts
-./load.sh -p5 -g "http://data.cimple.eu/agencefrancepresse/news" "agencefrancepresse/FRA" "*.*"
+docker compose exec virtuoso sh /scripts/load.sh -p5 -g "http://data.cimple.eu/agencefrancepresse/news" "agencefrancepresse/FRA" "*.*"
 ```
 
 Syntax: `load.sh [options] [graph] [dir path] [file mask]]`
@@ -137,35 +140,9 @@ List of parameters:
 -c --clear      Clear graph before loading
 ```
 
-### Webhook Setup
+### Webhook server
 
-1. Generate a password for the webhook server:
-
-   ```bash
-   htpasswd -B -c ./webhookd/.htpasswd api
-   ```
-
-1. Build the docker image:
-
-   ```bash
-   cd ./webhookd
-   docker build -t cimple/webhookd .
-   ```
-
-1. Run webhookd container:
-
-   ```bash
-   docker run --name cimple-webhookd \
-     -p 8880:8080 \
-     -e DBA_PASSWORD=myDbaPassword \
-     -e WHD_PASSWD_FILE=/etc/webhookd/.htpasswd \
-     -e WHD_HOOK_TIMEOUT=21600 \
-     -v $(pwd)/webhookd/scripts:/scripts \
-     -v $(pwd)/webhookd/cache:/data/cache \
-     -v $(pwd)/webhookd/.htpasswd:/etc/webhookd/.htpasswd \
-     -v /data/cimple-factors-models:/data/cimple-factors-models
-     -d cimple/webhookd
-   ```
+The webhook server is used to trigger the deployment of the RDF data.
 
 _Webhooks list:_
 
@@ -187,11 +164,11 @@ The list of path to be dereferenced is in `dereferencing/config.yml`. See the fu
 
 For exporting the apache config and the script for adding them to Virtuoso, run:
 
-```
+```bash
 cd dereferencing
 npx list2dereference config.yml
-docker cp "insert_vhost.sql" "cimple-virtuoso:/insert_vhost.sql"
-docker exec -i "cimple-virtuoso" sh -c "isql-v -U dba -P \${DBA_PASSWORD} < /insert_vhost.sql"
+docker compose cp insert_vhost.sql virtuoso:/insert_vhost.sql
+docker compose exec -i virtuoso sh -c "isql-v -U dba -P \${DBA_PASSWORD} < /insert_vhost.sql"
 ```
 
 Read more at https://github.com/pasqLisena/list2dereference
@@ -202,15 +179,14 @@ The service can be accessed at http://cimple.eurecom.fr/c/.
 
 To install the URL shortening service, run the following commands:
 
-```
-cd scripts
-docker cp "c_uri_dav.vad" "cimple-virtuoso:/usr/local/virtuoso-opensource/share/virtuoso/vad/c_uri_dav.vad"
-docker exec -i "cimple-virtuoso" sh -c "isql-v -U dba -P \${DBA_PASSWORD} exec=\"DB.DBA.VAD_INSTALL('/usr/local/virtuoso-opensource/share/virtuoso/vad/c_uri_dav.vad');\""
+```bash
+docker compose cp scripts/c_uri_dav.vad virtuoso:/usr/local/virtuoso-opensource/share/virtuoso/vad/c_uri_dav.vad
+docker compose exec -i virtuoso sh -c "isql-v -U dba -P \${DBA_PASSWORD} exec=\"DB.DBA.VAD_INSTALL('/usr/local/virtuoso-opensource/share/virtuoso/vad/c_uri_dav.vad');\""
 ```
 
 The service is hosted on the route `/c`. You may have to update the apache2 Virtual Host configuration to map the route, for example (assuming Virtuoso is hosted on port 8890):
 
-```
+```apacheconf
 <Location /c>
     ProxyPreserveHost On
     ProxyPass http://localhost:8890/c
