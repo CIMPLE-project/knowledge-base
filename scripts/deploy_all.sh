@@ -10,7 +10,7 @@ echo "Loading prefixes..."
 echo "Loading dumps..."
 for d in "${VIRTUOSO_DATA_PATH}/dumps/graph/"*/; do
   base=$(basename "${d}")
-  (cd "${SCRIPTPATH}" && . ./load.sh -c -g "http://data.cimple.eu/graph/${base}" "graph/${base}" "*.ttl")
+  (cd "${SCRIPTPATH}" && . ./load.sh -c -g "http://data.cimple.eu/graph/${base}" "graph/${base}" "*.*")
 done
 
 # Load ontology
