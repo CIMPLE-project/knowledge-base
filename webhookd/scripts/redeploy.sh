@@ -60,3 +60,9 @@ echo "[REDEPLOY] Cleaning up..."
 rm -rf "/data/${TagName}"
 rm -rf "/data/chunks"
 rm "/data/${TagName}.zip"
+
+# Ping healthchecks
+if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
+    echo "[REDEPLOY] Pinging healthchecks..."
+    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}"
+fi
