@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # create a new release
 # user: user's name
@@ -18,15 +18,14 @@ create_release() {
          --header 'content-type: application/json' \
          --data '{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Full release from ${name}\" }' \
          https://api.github.com/repos/$user/$repo/releases"
-    http_code=`eval $command`
-    if [ $http_code == "201" ]; then
+    http_code=$(eval "${command}")
+    if [ "$http_code" = "201" ]; then
         echo "created release:"
         cat release.json
     else
         echo "create release failed with code '$http_code':"
         cat release.json
-        echo "command:"
-        echo $command
+        echo "command: ${command}"
         return 1
     fi
 }
@@ -42,7 +41,7 @@ upload_release_file() {
     file=$2
     name=$3
 
-    url=`jq -r .upload_url release.json | cut -d{ -f'1'`
+    url=$(jq -r .upload_url release.json | cut -d'{' -f1)
     command="\
       curl -s -o upload.json -w '%{http_code}' \
            --request POST \
@@ -50,28 +49,27 @@ upload_release_file() {
            --header 'Content-Type: application/octet-stream' \
            --data-binary @\"${file}\"
            ${url}?name=${name}"
-    http_code=`eval $command`
-    if [ $http_code == "201" ]; then
-        echo "asset $name uploaded:"
+    http_code=$(eval "${command}")
+    if [ "${http_code}" = "201" ]; then
+        echo "asset ${name} uploaded:"
         jq -r .browser_download_url upload.json
     else
-        echo "upload failed with code '$http_code':"
+        echo "upload failed with code '${http_code}':"
         cat upload.json
-        echo "command:"
-        echo $command
+        echo "command: ${command}"
         return 1
     fi
 }
 
 # Make sure a path was passed in
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <path to directory to compress>"
+    echo "Usage: ${0} <path to directory to compress>"
     exit 1
 fi
 
 # Make sure the path exists
-if [ ! -d "$1" ]; then
-    echo "Error: $1 is not a directory."
+if [ ! -d "${1}" ]; then
+    echo "Error: ${1} is not a directory."
     exit 1
 fi
 

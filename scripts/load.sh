@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Constants
 LOG_FILE=${LOG_FILE:-"load.log"}
@@ -13,41 +13,38 @@ delete_rdf() {
 
 # $1 = sql query to execute
 execute_sql() {
-  local query
-  local temp_file
-
   # Get query
-  query="${1}"
+  _query="${1}"
   echo "-----------------"
-  echo -e "${query}"
+  printf "%s\n" "${_query}"
   echo "-----------------"
-  echo -e "${query}" >> "${LOG_FILE}" 2>&1
+  printf "%s\n" "${_query}" >> "${LOG_FILE}" 2>&1
 
   # Create SQL file
-  temp_file=$(mktemp)
-  touch "${temp_file}"
-  echo "Created temp file: ${temp_file}"
-  echo -e "${1}" >> "${temp_file}"
+  _temp_file=$(mktemp)
+  touch "${_temp_file}"
+  echo "Created temp file: ${_temp_file}"
+  printf "%s\n" "${1}" >> "${_temp_file}"
 
   # Execute SQL file
   echo "Executing SQL file through isql-v"
-  isql-v -U dba -P "${DBA_PASSWORD}" < "${temp_file}" >> "${LOG_FILE}" 2>&1
+  isql-v -U dba -P "${DBA_PASSWORD}" < "${_temp_file}" >> "${LOG_FILE}" 2>&1
   echo "Query output saved to ${LOG_FILE}"
 
   # Cleanup
-  echo "Removing temp file: ${temp_file}"
-  rm "${temp_file}"
+  echo "Removing temp file: ${_temp_file}"
+  rm "${_temp_file}"
 }
 
 # Get arguments
-PROG=`basename $0`
+PROG=$(basename "$0")
 getopt -T > /dev/null
 if [ $? -eq 4 ]; then
   # GNU enhanced getopt is available
-  ARGS=`getopt --name "$PROG" --long help,parallel:,graph:,clear --options hp:g:c -- "$@"`
+  ARGS=$(getopt --name "$PROG" --long help,parallel:,graph:,clear --options hp:g:c -- "$@")
 else
   # Original getopt is available (no long option names, no whitespace, no sorting)
-  ARGS=`getopt hp:g:c "$@"`
+  ARGS=$(getopt hp:g:c "$@")
 fi
 if [ $? -ne 0 ]; then
   echo "$PROG: usage error (use -h for help)" >&2
@@ -93,7 +90,7 @@ if [ "$CLEAR" = true ] ; then
 fi
 query="${query} ld_dir_all('dumps/${1:-"${2:-""}"}', '${2:-"*.*"}', '${GRAPH}');\n"
 query="${query} SELECT * FROM DB.DBA.load_list;\n"
-for i in $(seq 1 ${PARALLEL:-1}); do
+for i in $(seq 1 "${PARALLEL:-1}"); do
   query="${query} rdf_loader_run();\n"
 done
 query="${query} cl_exec('checkpoint');\n"

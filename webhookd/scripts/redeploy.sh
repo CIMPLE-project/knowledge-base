@@ -1,9 +1,15 @@
-#!/bin/bash
+#!/bin/sh
+
+# Check that "url" was passed to the script
+if [ -z "${url}" ]; then
+  echo "[REDEPLOY] URL not found"
+  exit 1
+fi
 
 echo "Url: $url"
 
-TagName="${url##*/}"
-DownloadURL="${url/tag/download}/${TagName}.zip"
+TagName=$(basename "$url")
+DownloadURL=$(printf "%s" "$url" | sed "s/tag/download/")/${TagName}.zip
 
 [ -z "${TagName}" ] && { echo "[REDEPLOY] TagName not found from URL"; exit 1; }
 
@@ -18,10 +24,10 @@ fi
 if [ ! -d "/data/converter" ]; then
   echo "[REDEPLOY] Cloning converter scripts..."
   git clone https://github.com/CIMPLE-project/converter.git /data/converter
-  cd /data/converter
+  cd /data/converter || exit
 else
   echo "[REDEPLOY] Updating converter scripts..."
-  cd /data/converter
+  cd /data/converter || exit
   git pull
 fi
 
@@ -47,7 +53,7 @@ for chunkfile in /data/chunks/*.nt; do
 done
 
 # Create release
-. /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}"
+/scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}"
 
 # Cleanup
 echo "[REDEPLOY] Cleaning up..."
