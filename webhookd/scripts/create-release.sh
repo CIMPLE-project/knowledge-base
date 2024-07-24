@@ -16,15 +16,14 @@ create_release() {
            --request POST \
            --header "Authorization: Bearer ${token}" \
            --header "Content-Type: application/octet-stream" \
-           --data '{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Daily release from ${name}\" }' \
+           --data "{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Daily release from ${name}\" }" \
            "https://api.github.com/repos/$user/$repo/releases")
     if [ "${http_code}" = "201" ]; then
         echo "[CREATE-RELEASE] Created release:"
         cat release.json
     else
-        echo "[CREATE-RELEASE] Create release failed with code '${http_code}':"
+        echo "[CREATE-RELEASE] Create release failed with code '${http_code}':"
         cat release.json
-        echo "[CREATE-RELEASE] Command: ${command}"
         return 1
     fi
 }
@@ -53,7 +52,6 @@ upload_release_file() {
     else
         echo "[CREATE-RELEASE] Upload failed with code '${http_code}':"
         cat upload.json
-        echo "[CREATE-RELEASE] Command: ${command}"
         return 1
     fi
 }
