@@ -12,20 +12,18 @@ create_release() {
     tag=$4
     name=$5
 
-    command="curl -s -o release.json -w '%{http_code}' \
-         --request POST \
-         --header 'authorization: Bearer ${token}' \
-         --header 'content-type: application/json' \
-         --data '{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Full release from ${name}\" }' \
-         https://api.github.com/repos/$user/$repo/releases"
-    http_code=$(eval "${command}")
-    if [ "$http_code" = "201" ]; then
-        echo "created release:"
+    http_code=$(curl -s -o release.json -w '%{http_code}' \
+           --request POST \
+           --header "Authorization: Bearer ${token}" \
+           --header "Content-Type: application/octet-stream" \
+           --data "{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Full release from ${name}\" }" \
+           "https://api.github.com/repos/$user/$repo/releases")
+    if [ "${http_code}" = "201" ]; then
+        echo "Created release:"
         cat release.json
     else
-        echo "create release failed with code '$http_code':"
+        echo "Create release failed with code '${http_code}':"
         cat release.json
-        echo "command: ${command}"
         return 1
     fi
 }
@@ -42,21 +40,18 @@ upload_release_file() {
     name=$3
 
     url=$(jq -r .upload_url release.json | cut -d'{' -f1)
-    command="\
-      curl -s -o upload.json -w '%{http_code}' \
+    http_code=$(curl -s -o upload.json -w '%{http_code}' \
            --request POST \
-           --header 'authorization: Bearer ${token}' \
-           --header 'Content-Type: application/octet-stream' \
-           --data-binary @\"${file}\"
-           ${url}?name=${name}"
-    http_code=$(eval "${command}")
+           --header "Authorization: Bearer ${token}" \
+           --header "Content-Type: application/octet-stream" \
+           --data-binary @"${file}" \
+           "${url}?name=${name}")
     if [ "${http_code}" = "201" ]; then
-        echo "asset ${name} uploaded:"
+        echo "Asset ${name} uploaded:"
         jq -r .browser_download_url upload.json
     else
-        echo "upload failed with code '${http_code}':"
+        echo "Upload failed with code '${http_code}':"
         cat upload.json
-        echo "command: ${command}"
         return 1
     fi
 }
