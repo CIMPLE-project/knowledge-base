@@ -39,13 +39,13 @@ upload_release_file() {
     file=$2
     name=$3
 
-    url=$(jq -r .upload_url release.json | cut -d'{' -f1 | sed "s/{?name,label}/?name=${name}/")
+    url=$(jq -r .upload_url release.json | cut -d'{' -f1)
     http_code=$(curl -s -o upload.json -w '%{http_code}' \
            --request POST \
            --header "Authorization: Bearer ${token}" \
            --header "Content-Type: application/octet-stream" \
            --data-binary @"${file}" \
-           "${url}")
+           "${url}?name=${name}")
     if [ "${http_code}" = "201" ]; then
         echo "[CREATE-RELEASE] Asset ${name} uploaded:"
         jq -r .browser_download_url upload.json
