@@ -6,19 +6,19 @@ if [ -z "${url}" ]; then
   exit 1
 fi
 
-echo "Url: $url"
+echo "[REDEPLOY] URL: $url"
 
 TagName=$(basename "$url")
 DownloadURL=$(printf "%s" "$url" | sed "s/tag/download/")/${TagName}.zip
 
 [ -z "${TagName}" ] && { echo "[REDEPLOY] TagName not found from URL"; exit 1; }
 
-# Download the archive
-if [ ! -d "/data/${TagName}" ]; then
-  echo "[REDEPLOY] Download URL: $DownloadURL"
-  curl -sS -L -o "/data/${TagName}.zip" "$DownloadURL"
-  unzip "/data/${TagName}.zip" -d /data
-fi
+# Download and extract the archive
+echo "[REDEPLOY] Downloading from URL: $DownloadURL"
+curl -sS -L -o "/data/${TagName}.zip" "$DownloadURL"
+echo "[REDEPLOY] Extracting archive"
+unzip "/data/${TagName}.zip" -d /data
+ls -halt "/data/${TagName}"
 
 # Clone the converter scripts
 if [ ! -d "/data/converter" ]; then
