@@ -71,9 +71,8 @@ release_name="${2}"
 compressed_file="${1}.gz"
 echo "[CREATE-RELEASE] Compressing ${1} into ${compressed_file}"
 gzip -c "${1}" > "${compressed_file}"
-if create_release "CIMPLE-project" "knowledge-base" "${GITHUB_TOKEN}" "${release_name}" "${release_name}" ; then
-    upload_release_file "${GITHUB_TOKEN}" "${compressed_file}" "${compressed_file}"
-fi
+create_release "CIMPLE-project" "knowledge-base" "${GITHUB_TOKEN}" "${release_name}" "${release_name}"
+upload_release_file "${GITHUB_TOKEN}" "${compressed_file}" "${compressed_file}"
 
 echo "[CREATE-RELEASE] Cleaning up..."
 rm -f "${compressed_file}"
