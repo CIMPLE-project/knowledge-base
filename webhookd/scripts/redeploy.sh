@@ -41,6 +41,11 @@ echo "[REDEPLOY] Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
 python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.nt" -f "nt" -c "/data/cache" -g "/data/cache/claim-review.nt"
 
+if [ ! -f "/data/claimreview-kg_${TagName}.nt" ]; then
+  echo "[REDEPLOY] Could not find converted RDF file!"
+  exit 1
+fi
+
 # Split into chunks
 echo "[REDEPLOY] Splitting into chunks..."
 [ -d /data/chunks ] || mkdir /data/chunks
