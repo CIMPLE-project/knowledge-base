@@ -6,6 +6,13 @@ if [ -z "${url}" ]; then
   exit 1
 fi
 
+# Send a start ping to healthchecks
+if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
+  echo "[REDEPLOY] Pinging healthchecks (start)..."
+  RID=`openssl rand -hex 32`
+  curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/start?rid=${RID}"
+fi
+
 echo "[REDEPLOY] URL: $url"
 
 TagName=$(basename "$url")
@@ -66,8 +73,8 @@ rm -rf "/data/${TagName}"
 rm -rf "/data/chunks"
 rm "/data/${TagName}.zip"
 
-# Ping healthchecks
+# Send a success ping to healthchecks
 if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
-    echo "[REDEPLOY] Pinging healthchecks..."
-    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}"
+    echo "[REDEPLOY] Pinging healthchecks (success)..."
+    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}?rid=${RID}"
 fi
