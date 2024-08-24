@@ -9,7 +9,7 @@ fi
 # Send a start ping to healthchecks
 if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
   echo "[REDEPLOY] Pinging healthchecks (start)..."
-  RID=`openssl rand -hex 32`
+  RID=$(cat /proc/sys/kernel/random/uuid)
   curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/start?rid=${RID}"
 fi
 
