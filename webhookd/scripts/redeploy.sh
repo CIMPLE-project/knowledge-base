@@ -22,7 +22,19 @@ DownloadURL=$(printf "%s" "$url" | sed "s/tag/download/")/${TagName}.zip
 
 # Download and extract the archive
 echo "[REDEPLOY] Downloading from URL: $DownloadURL"
-curl -sS -L -o "/data/${TagName}.zip" "$DownloadURL"
+MaxRetries=5
+RetryCount=0
+while [ $RetryCount -lt $MaxRetries ]; do
+  curl -sS --fail -L -o "/data/${TagName}.zip" "$DownloadURL"
+  if [ $? -eq 0 ]; then
+    echo "[REDEPLOY] Download succeeded"
+  else
+    RetryCount=$((RetryCount + 1))
+    SleepTime=$((2 ** RetryCount))
+    echo "[REDEPLOY] Download failed. Attempt ${RetryCount} of ${MaxRetries}. Retrying in ${RetryWait} seconds..."
+    sleep $SleepTime
+  fi
+done
 echo "[REDEPLOY] Extracting archive"
 unzip "/data/${TagName}.zip" -d /data
 ls -halt "/data/${TagName}"
