@@ -27,6 +27,7 @@ RetryCount=0
 while [ $RetryCount -lt $MaxRetries ]; do
   if curl -sS --fail -L -o "/data/${TagName}.zip" "$DownloadURL"; then
     echo "[REDEPLOY] Download succeeded"
+    break
   else
     RetryCount=$((RetryCount + 1))
     SleepTime=$((2 ** RetryCount))
