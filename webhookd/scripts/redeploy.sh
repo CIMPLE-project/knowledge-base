@@ -25,8 +25,7 @@ echo "[REDEPLOY] Downloading from URL: $DownloadURL"
 MaxRetries=5
 RetryCount=0
 while [ $RetryCount -lt $MaxRetries ]; do
-  curl -sS --fail -L -o "/data/${TagName}.zip" "$DownloadURL"
-  if [ $? -eq 0 ]; then
+  if curl -sS --fail -L -o "/data/${TagName}.zip" "$DownloadURL"; then
     echo "[REDEPLOY] Download succeeded"
   else
     RetryCount=$((RetryCount + 1))
