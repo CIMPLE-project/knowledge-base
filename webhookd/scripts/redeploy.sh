@@ -37,7 +37,6 @@ while [ $RetryCount -lt $MaxRetries ]; do
 done
 echo "[REDEPLOY] Extracting archive"
 unzip "/data/${TagName}.zip" -d /data
-ls -halt "/data/${TagName}"
 
 # Clone the converter scripts
 if [ ! -d "/data/converter" ]; then
