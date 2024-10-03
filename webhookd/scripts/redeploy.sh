@@ -1,8 +1,31 @@
-#!/bin/sh
+#!/bin/bash
+
+set -Eeuo pipefail
+trap cleanup SIGINT SIGTERM ERR EXIT
+
+# Cleanup function
+cleanup() {
+  local last_status_code=$?
+  trap - SIGINT SIGTERM ERR EXIT
+
+  # Cleanup
+  echo "[REDEPLOY] Cleaning up..."
+  rm -rf "/data/${TagName}"
+  rm -rf "/data/chunks"
+  rm "/data/${TagName}.zip"
+
+  # Check if error occurred
+  if [ $last_status_code -ne 0 ]; then
+    echo "[REDEPLOY] An error occurred. Sending a failure ping to healthchecks..."
+    if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
+      curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/fail"
+    fi
+  fi
+}
 
 # Check that "url" was passed to the script
 if [ -z "${url}" ]; then
-  echo "[REDEPLOY] URL not found"
+  echo "[REDEPLOY] URL not found" >&2
   exit 1
 fi
 
@@ -18,7 +41,7 @@ echo "[REDEPLOY] URL: $url"
 TagName=$(basename "$url")
 DownloadURL=$(printf "%s" "$url" | sed "s/tag/download/")/${TagName}.zip
 
-[ -z "${TagName}" ] && { echo "[REDEPLOY] TagName not found from URL"; exit 1; }
+[ -z "${TagName}" ] && { echo "[REDEPLOY] TagName not found from URL" >&2 ; exit 1; }
 
 # Download and extract the archive
 echo "[REDEPLOY] Downloading from URL: $DownloadURL"
@@ -31,12 +54,26 @@ while [ $RetryCount -lt $MaxRetries ]; do
   else
     RetryCount=$((RetryCount + 1))
     SleepTime=$((2 ** RetryCount))
-    echo "[REDEPLOY] Download failed. Attempt ${RetryCount} of ${MaxRetries}. Retrying in ${RetryWait} seconds..."
+    echo "[REDEPLOY] Download failed. Attempt ${RetryCount} of ${MaxRetries}. Retrying in ${SleepTime} seconds..."
     sleep $SleepTime
   fi
 done
+
+# Check if the archive was downloaded
+if [ ! -f "/data/${TagName}.zip" ]; then
+  echo "[REDEPLOY] Could not download the archive!" >&2
+  exit 1
+fi
+
+# Extract the archive
 echo "[REDEPLOY] Extracting archive"
 unzip "/data/${TagName}.zip" -d /data
+
+# Check if the extracted directory exists
+if [ ! -d "/data/${TagName}" ]; then
+  echo "[REDEPLOY] Could not find the extracted directory!" >&2
+  exit 1
+fi
 
 # Clone the converter scripts
 if [ ! -d "/data/converter" ]; then
@@ -77,12 +114,6 @@ done
 
 # Create release
 /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}"
-
-# Cleanup
-echo "[REDEPLOY] Cleaning up..."
-rm -rf "/data/${TagName}"
-rm -rf "/data/chunks"
-rm "/data/${TagName}.zip"
 
 # Send a success ping to healthchecks
 if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
