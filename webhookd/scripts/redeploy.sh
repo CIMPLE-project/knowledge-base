@@ -10,9 +10,11 @@ cleanup() {
 
   # Cleanup
   echo "[REDEPLOY] Cleaning up..."
-  rm -rf "/data/${TagName}"
   rm -rf "/data/chunks"
-  rm "/data/${TagName}.zip"
+  if [ -n "${TagName:-}" ]; then
+    rm -rf "/data/${TagName}"
+    rm "/data/${TagName}.zip"
+  fi
 
   # Check if error occurred
   if [ $last_status_code -ne 0 ]; then
