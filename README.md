@@ -26,7 +26,7 @@ The Claim Reviews data integrated in the CimpleKG is available on the [claimrevi
 
 ## 🔍 Knowledge Graph Overview and Documentation
 
-CimpleKG links daily updated data from 70+ fact-checking organisations with over 200k+ documents from static misinformation datasets. The knowledge graph is augmented with textual features and entities extracted from the textual data integrated into the graph. The knowledge graph contains more than 15m triples, including 263k+ distinct entities and 1m textual features with over 203k fact-checked claims, spanning 26 languages and 36 countries.
+CimpleKG links daily updated data from 70+ fact-checking organisations with over 200k+ documents from static misinformation datasets. The knowledge graph is augmented with textual features and entities extracted from the textual data integrated into the graph. The knowledge graph contains more than 15m triples, including 263k+ distinct entities and 1m textual features with over 203k fact-checked claims, spanning 26 languages and 36 countries. Detailed statistics can be found on the [releases page](https://github.com/CIMPLE-project/knowledge-base/releases).
 
 A public SPARQL endpoint is available at https://data.cimple.eu/sparql and data releases are made available in this repository. The knowledge graph can be also loaded and queried locally (see _Initialising the Knowledge Graph_).
 
