@@ -69,7 +69,7 @@ upload_release_file() {
            --header "Content-Type: application/octet-stream" \
            --data-binary @"${file}" \
            "${url}?name=${name}")
-    if [ "${http_code}" = "201" ]; then
+    if [ "${http_code}" -ge 200 ] && [ "${http_code}" -lt 300 ]; then
         echo "[CREATE-RELEASE] Asset ${name} uploaded:"
         jq -r .browser_download_url upload.json
     else
