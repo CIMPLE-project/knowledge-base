@@ -41,7 +41,7 @@ create_release() {
            --header "Content-Type: application/json" \
            --data "{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Daily release from ${name}\n\n${stats_table}\" }" \
            "https://api.github.com/repos/$user/$repo/releases")
-    if [ "${http_code}" = "201" ]; then
+    if [ "${http_code}" -ge 200 ] && [ "${http_code}" -lt 300 ]; then
         echo "[CREATE-RELEASE] Created release:"
         cat release.json
     else
