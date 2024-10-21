@@ -1,5 +1,21 @@
 #!/bin/sh
 
+# query the SPARQL endpoint for statistics to include in the release
+query_statistics() {
+    endpoint="https://data.cimple.eu/sparql"
+    query=$(cat "$(dirname "$0")/statistics_query.rq")
+
+    result=$(curl -s --data-urlencode "query=${query}" "${endpoint}" \
+             -H "Accept: application/sparql-results+json")
+
+    nb_claims=$(echo "${result}" | jq -r '.results.bindings[0].nbClaim.value')
+    nb_organizations=$(echo "${result}" | jq -r '.results.bindings[0].nbOrganizations.value')
+    nb_languages=$(echo "${result}" | jq -r '.results.bindings[0].nbLanguages.value')
+    nb_entities=$(echo "${result}" | jq -r '.results.bindings[0].nbEntities.value')
+
+    echo "${nb_claims},${nb_organizations},${nb_languages},${nb_entities}"
+}
+
 # create a new release
 # user: user's name
 # repo: the repo's name
@@ -12,11 +28,18 @@ create_release() {
     tag=$4
     name=$5
 
+    # Query the SPARQL endpoint for statistics
+    stats=$(query_statistics)
+    IFS=',' read -r nb_claims nb_organizations nb_languages nb_entities <<< "${stats}"
+
+    # Create a markdown table with the stats
+    stats_table="| Metric | Value |\n| --- | --- |\n| Number of Claims | ${nb_claims} |\n| Number of Organizations | ${nb_organizations} |\n| Number of Languages | ${nb_languages} |\n| Number of Entities | ${nb_entities} |"
+
     http_code=$(curl -s -o release.json -w '%{http_code}' \
            --request POST \
            --header "Authorization: Bearer ${token}" \
-           --header "Content-Type: application/octet-stream" \
-           --data "{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Daily release from ${name}\" }" \
+           --header "Content-Type: application/json" \
+           --data "{\"tag_name\": \"${tag}\", \"name\": \"${name}\", \"body\": \"Daily release from ${name}\n\n${stats_table}\" }" \
            "https://api.github.com/repos/$user/$repo/releases")
     if [ "${http_code}" = "201" ]; then
         echo "[CREATE-RELEASE] Created release:"

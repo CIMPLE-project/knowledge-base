@@ -1,0 +1,10 @@
+SELECT (COUNT(?claim) AS ?nbClaim) (COUNT(?organization) AS ?nbOrganizations) (COUNT(DISTINCT ?language) AS ?nbLanguages) (COUNT(DISTINCT ?entity) AS ?nbEntities)
+WHERE {
+  { ?organization a schema:Organization }
+  UNION
+  { ?claim a schema:Claim }
+  UNION
+  { [] schema:inLanguage ?language }
+  UNION
+  { [] schema:mentions ?entity }
+}
