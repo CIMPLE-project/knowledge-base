@@ -47,7 +47,7 @@ DownloadURL=$(printf "%s" "$url" | sed "s/tag/download/")/${TagName}.zip
 
 # Download and extract the archive
 echo "[REDEPLOY] Downloading from URL: $DownloadURL"
-MaxRetries=5
+MaxRetries=7
 RetryCount=0
 while [ $RetryCount -lt $MaxRetries ]; do
   if curl -sS --fail -L -o "/data/${TagName}.zip" "$DownloadURL"; then
