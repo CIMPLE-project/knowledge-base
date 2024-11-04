@@ -30,7 +30,10 @@ create_release() {
 
     # Query the SPARQL endpoint for statistics
     stats=$(query_statistics)
-    IFS=',' read -r nb_claims nb_organizations nb_languages nb_entities <<< "${stats}"
+    nb_claims=$(echo "$stats" | awk -F, '{print $1}')
+    nb_organizations=$(echo "$stats" | awk -F, '{print $2}')
+    nb_languages=$(echo "$stats" | awk -F, '{print $3}')
+    nb_entities=$(echo "$stats" | awk -F, '{print $4}')
 
     # Create a markdown table with the stats
     stats_table="| Metric | Value |\n| --- | --- |\n| Number of Claims | ${nb_claims} |\n| Number of Organizations | ${nb_organizations} |\n| Number of Languages | ${nb_languages} |\n| Number of Entities | ${nb_entities} |"
