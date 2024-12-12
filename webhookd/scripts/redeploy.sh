@@ -85,7 +85,7 @@ if [ ! -d "/data/converter" ]; then
 else
   echo "[REDEPLOY] Updating converter scripts..."
   cd /data/converter || exit
-  git pull
+  git pull || true
 fi
 
 export PYTHONUNBUFFERED=1
