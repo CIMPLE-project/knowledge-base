@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -euo pipefail
+
 # query the SPARQL endpoint for statistics to include in the release
 query_statistics() {
     endpoint="https://data.cimple.eu/sparql"

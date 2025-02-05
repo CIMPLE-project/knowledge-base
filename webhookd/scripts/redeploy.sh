@@ -115,7 +115,7 @@ for chunkfile in /data/chunks/*.nt; do
 done
 
 # Create release
-/scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}"
+/scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}" || exit 1
 
 # Send a success ping to healthchecks
 if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
