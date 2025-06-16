@@ -117,6 +117,21 @@ done
 # Create release
 /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}" || exit 1
 
+# Cleanup old files and folders (older than 14 days)
+echo "[REDEPLOY] Cleaning up old files and folders..."
+
+# Remove .nt files older than 14 days from /data
+echo "[REDEPLOY] Removing .nt files older than 14 days from /data..."
+find /data -name "claimreview-kg_*.nt" -type f -mtime +14 -delete 2>/dev/null || true
+
+# Remove log folders older than 14 days from /data/logs
+if [ -d "/data/logs" ]; then
+  echo "[REDEPLOY] Removing log folders older than 14 days from /data/logs..."
+  find /data/logs -maxdepth 1 -type d -mtime +14 -exec rm -rf {} + 2>/dev/null || true
+fi
+
+echo "[REDEPLOY] Cleanup completed."
+
 # Send a success ping to healthchecks
 if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
     echo "[REDEPLOY] Pinging healthchecks (success)..."
