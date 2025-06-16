@@ -96,7 +96,7 @@ pip install --extra-index-url https://download.pytorch.org/whl/cpu -q -r require
 # Convert to RDF/Turtle
 echo "[REDEPLOY] Converting to RDF/Turtle..."
 [ -d /data/cache ] || mkdir /data/cache
-python -u update_KG.py -q -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.nt" -f "nt" -c "/data/cache" -g "/data/cache/claim-review.nt"
+python -u update_KG.py --no-progress -i "/data/${TagName}" -o "/data/claimreview-kg_${TagName}.nt" -f "nt" -c "/data/cache" -g "/data/cache/claim-review.nt"
 
 if [ ! -f "/data/claimreview-kg_${TagName}.nt" ]; then
   echo "[REDEPLOY] Could not find converted RDF file!"
