@@ -69,7 +69,7 @@ fi
 
 # Extract the archive
 echo "[REDEPLOY] Extracting archive"
-unzip "/data/${TagName}.zip" -d /data
+unzip -o "/data/${TagName}.zip" -d /data
 
 # Check if the extracted directory exists
 if [ ! -d "/data/${TagName}" ]; then
