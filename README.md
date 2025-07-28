@@ -8,7 +8,7 @@
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
 [cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
 
-> The CIMPLE Knowledge Graph (CimpleKG) is a continiousely updated large knowledge graph that has been created to help researchers combat misinformation. CimpleKG links information from fact-checking organizations with other datasets about misinformation, giving researchers a more comprehensive view of the problem.
+> The CIMPLE Knowledge Graph (CimpleKG) is a continuously updated large knowledge graph that has been created to help researchers combat misinformation. CimpleKG links information from fact-checking organizations with other datasets about misinformation, giving researchers a more comprehensive view of the problem.
 >
 > This repository contains scripts to deploy the Knowledge Graph developed within the [CIMPLE project](https://www.chistera.eu/projects/cimple).
 
@@ -26,11 +26,11 @@ The Claim Reviews data integrated in the CimpleKG is available on the [claimrevi
 
 ## 🔍 Knowledge Graph Overview and Documentation
 
-CimpleKG links daily updated data from 70+ fact-checking organisations with over 200k+ documents from static misinformation datasets. The knowledge graph is augmented with textual features and entities extracted from the textual data integrated into the graph. The knowledge graph contains more than 15m triples, including 263k+ distinct entities and 1m textual features with over 203k fact-checked claims, spanning 26 languages and 36 countries. Detailed statistics can be found on the [releases page](https://github.com/CIMPLE-project/knowledge-base/releases).
+CimpleKG links daily updated data from 70+ fact-checking organisations with over 200k documents from static misinformation datasets. The knowledge graph is augmented with textual features and entities extracted from the textual data integrated into the graph. The knowledge graph contains more than 15m triples, including 263k+ distinct entities and 1m textual features with over 203k fact-checked claims, spanning 26 languages and 36 countries. Detailed statistics can be found on the [releases page](https://github.com/CIMPLE-project/knowledge-base/releases).
 
 A public SPARQL endpoint is available at https://data.cimple.eu/sparql and data releases are made available in this repository. The knowledge graph can be also loaded and queried locally (see _Initialising the Knowledge Graph_).
 
-SPARQL Query examples and aditional documentation can be found in the [documentation page](./Documentation.md).
+SPARQL Query examples and additional documentation can be found in the [documentation page](./Documentation.md).
 
 ### RDF Namespaces
 
@@ -56,7 +56,7 @@ DB.DBA.XML_SET_NS_DECL ('xsd', 'http://www.w3.org/2001/XMLSchema#', 2);
 
 ## 🚧 Initialising the Knowledge Graph
 
-This section covers the steps required to set up a new Knowlede Base for the first time.
+This section covers the steps required to set up a new Knowledge Base for the first time.
 
 1. Clone this repository.
 
@@ -146,7 +146,7 @@ The webhook server is used to trigger the deployment of the RDF data.
 
 _Webhooks list:_
 
-- http://localhost:8880/redeploy - Executes the delpoyment script.
+- http://localhost:8880/redeploy - Executes the deployment script.
 - http://localhost:8880/status - Returns "OK" if the service is running.
 
 _Example:_
