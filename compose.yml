@@ -15,6 +15,10 @@ services:
       - VIRT_SPARQL_ResultSetMaxRows=${VIRT_SPARQL_ResultSetMaxRows}
       - VIRT_SPARQL_MaxQueryCostEstimationTime=${VIRT_SPARQL_MaxQueryCostEstimationTime}
       - VIRT_SPARQL_MaxQueryExecutionTime=${VIRT_SPARQL_MaxQueryExecutionTime}
+      - VIRT_Parameters_NumberOfBuffers=${VIRT_Parameters_NumberOfBuffers}
+      - VIRT_Parameters_MaxDirtyBuffers=${VIRT_Parameters_MaxDirtyBuffers}
+      - VIRT_HTTPServer_ServerThreads=${VIRT_HTTPServer_ServerThreads}
+      - VIRT_HTTPServer_MaxClientConnections=${VIRT_HTTPServer_MaxClientConnections}
     volumes:
       - ${VIRTUOSO_DATA_PATH}:/data
       - ./scripts:/scripts

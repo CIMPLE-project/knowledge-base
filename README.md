@@ -71,7 +71,11 @@ This section covers the steps required to set up a new Knowledge Base for the fi
    - `SPARQL_UPDATE`: Enable SPARQL update queries.
    - `VIRT_SPARQL_ResultSetMaxRows`: Maximum number of rows to return in a SPARQL query.
    - `VIRT_SPARQL_MaxQueryCostEstimationTime`: Maximum time to estimate the cost of a SPARQL query.
-   - `VIRT_SPARQL_MaxQueryExecutionTime`: Maximum time to execute a SPARQL query.
+   - `VIRT_SPARQL_MaxQueryExecutionTime`: Maximum time to execute a SPARQL query, in seconds.
+   - `VIRT_Parameters_NumberOfBuffers`: Number of 8 KB database pages kept in memory as buffer cache.
+   - `VIRT_Parameters_MaxDirtyBuffers`: Maximum number of dirty buffers before a checkpoint is forced.
+   - `VIRT_HTTPServer_ServerThreads`: Number of HTTP server threads serving the SPARQL endpoint.
+   - `VIRT_HTTPServer_MaxClientConnections`: Maximum number of concurrent HTTP client connections.
    - `VIRTUOSO_DATA_PATH`: Path to the Virtuoso data directory.
    - `VIRTUOSO_PORT`: Port to expose the Virtuoso database.
    - `WHD_HOOK_TIMEOUT`: Timeout for the webhook server.
