@@ -13,7 +13,7 @@ cleanup() {
   rm -rf "/data/chunks"
   if [ -n "${TagName:-}" ]; then
     rm -rf "/data/${TagName}"
-    rm "/data/${TagName}.zip"
+    rm -f "/data/${TagName}.zip"
   fi
 
   # Check if error occurred
