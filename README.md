@@ -66,6 +66,7 @@ This section covers the steps required to set up a new Knowledge Base for the fi
    - `WORKBENCH_ADMIN_USER` / `WORKBENCH_ADMIN_PASSWORD`: Admin account of the RDF Workbench UI.
    - `WORKBENCH_URL`: Externally visible URL of the workbench (default https://data.cimple.eu).
    - `SPARQL_TIMEOUT_MS`: Workbench-side SPARQL timeout (default 120000).
+   - `DEREFERENCE_PATHS`: Path segments seeded into the workbench on startup, comma-separated. Existing entries are never removed.
    - `WHD_HOOK_TIMEOUT`: Timeout for the webhook server.
    - `GITHUB_TOKEN`: GitHub token to create the [releases](https://github.com/CIMPLE-project/knowledge-base/releases).
    - `CIMPLE_FACTORS_MODELS_PATH`: Path to the CIMPLE factors models.
@@ -81,8 +82,6 @@ This section covers the steps required to set up a new Knowledge Base for the fi
    ```bash
    bash qlever/deploy-and-archive.sh
    ```
-
-1. Configure the dereferenceable resource paths in the RDF Workbench admin UI (`claim-review`, `review`, `tweet`, `news-article`, `organization`, `rating`, `claim`, `entity`, `emotion`, `conspiracy`, `meme`, `political-leaning`, `sentiment`, `original_rating`). See _Dereferencing_ below.
 
 ### Rebuilding the index
 
@@ -120,8 +119,6 @@ curl -u api:$API_PASSWORD -XPOST http://localhost:8880/redeploy?url=https%3A%2F%
 
 ### Dereferencing
 
-The RDF Workbench serves URI dereferencing as HTML resource pages. The list of dereferenceable path segments is configured in the workbench admin UI. The configured segments:
-
-`claim-review`, `review`, `tweet`, `news-article`, `organization`, `rating`, `claim`, `entity`, `emotion`, `conspiracy`, `meme`, `political-leaning`, `sentiment`, `original_rating`
+The RDF Workbench serves URI dereferencing as HTML resource pages. The list of dereferenceable path segments is configurable via the `DEREFERENCE_PATHS` environment variable.
 
 See the full list of [URI patterns](URI.patterns.md) for reference. RDF access to the data remains at the [SPARQL endpoint](https://data.cimple.eu/sparql).
