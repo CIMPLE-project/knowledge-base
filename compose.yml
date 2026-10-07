@@ -1,28 +1,9 @@
 volumes:
   webhookd-config:
+  qlever-data:
+  workbench-data:
 
 services:
-  virtuoso:
-    build:
-      context: https://github.com/D2KLab/docker-virtuoso.git
-    container_name: cimple-virtuoso
-    restart: unless-stopped
-    ports:
-      - "${VIRTUOSO_PORT}:8890"
-    environment:
-      - DBA_PASSWORD=${DBA_PASSWORD}
-      - SPARQL_UPDATE=${SPARQL_UPDATE}
-      - VIRT_SPARQL_ResultSetMaxRows=${VIRT_SPARQL_ResultSetMaxRows}
-      - VIRT_SPARQL_MaxQueryCostEstimationTime=${VIRT_SPARQL_MaxQueryCostEstimationTime}
-      - VIRT_SPARQL_MaxQueryExecutionTime=${VIRT_SPARQL_MaxQueryExecutionTime}
-      - VIRT_Parameters_NumberOfBuffers=${VIRT_Parameters_NumberOfBuffers}
-      - VIRT_Parameters_MaxDirtyBuffers=${VIRT_Parameters_MaxDirtyBuffers}
-      - VIRT_HTTPServer_ServerThreads=${VIRT_HTTPServer_ServerThreads}
-      - VIRT_HTTPServer_MaxClientConnections=${VIRT_HTTPServer_MaxClientConnections}
-    volumes:
-      - ${VIRTUOSO_DATA_PATH}:/data
-      - ./scripts:/scripts
-
   webhookd:
     build:
       context: ./webhookd
@@ -44,3 +25,117 @@ services:
       - ./webhookd/cache:/data/cache
       - ${CIMPLE_FACTORS_MODELS_PATH}:/data/cimple-factors-models
       - webhookd-config:/etc/webhookd
+
+  qlever-volume-admin:
+    image: alpine:3.22
+    command: ["true"]
+    volumes:
+      - type: volume
+        source: qlever-data
+        target: /data
+        volume:
+          nocopy: true
+    restart: "no"
+    profiles:
+      - qlever-init
+
+  qlever-index:
+    image: adfreiburg/qlever:commit-8d7945d
+    container_name: cimple-qlever-index
+    working_dir: /data
+    environment:
+      UID: ${QLEVER_UID:-999}
+      GID: ${QLEVER_GID:-999}
+      QLEVER_INDEX_MEMORY: ${QLEVER_INDEX_MEMORY:-2G}
+    command:
+      - -c
+      - >-
+        cp /config/Qleverfile /data/index-next/Qleverfile &&
+        cd /data/index-next &&
+        qlever index
+        --stxxl-memory "$${QLEVER_INDEX_MEMORY:-2G}"
+    volumes:
+      - type: volume
+        source: qlever-data
+        target: /data
+        volume:
+          nocopy: true
+      - ${QLEVER_DEPLOY_QLEVERFILE:-./qlever/Qleverfile}:/config/Qleverfile:ro
+      - ./qlever/dumps:/data/source/dumps:ro
+    restart: "no"
+    profiles:
+      - qlever-init
+
+  qlever:
+    image: adfreiburg/qlever:commit-8d7945d
+    container_name: cimple-qlever
+    working_dir: /data
+    environment:
+      UID: ${QLEVER_UID:-999}
+      GID: ${QLEVER_GID:-999}
+      QLEVER_ACCESS_TOKEN: ${QLEVER_ACCESS_TOKEN:-}
+      QLEVER_MEMORY_FOR_QUERIES: ${QLEVER_MEMORY_FOR_QUERIES:-4G}
+      QLEVER_CACHE_MAX_SIZE: ${QLEVER_CACHE_MAX_SIZE:-2G}
+      QLEVER_QUERY_TIMEOUT: ${QLEVER_QUERY_TIMEOUT:-120s}
+    command:
+      - -c
+      - >-
+        cd /data/index-current &&
+        qlever start
+        --run-in-foreground
+        --access-token "${QLEVER_ACCESS_TOKEN:-}"
+        --memory-for-queries "${QLEVER_MEMORY_FOR_QUERIES:-4G}"
+        --cache-max-size "${QLEVER_CACHE_MAX_SIZE:-2G}"
+        --timeout "${QLEVER_QUERY_TIMEOUT:-120s}"
+    ports:
+      - "127.0.0.1:7019:7019"
+    volumes:
+      - type: volume
+        source: qlever-data
+        target: /data
+        volume:
+          nocopy: true
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS -G -H 'Accept: application/sparql-results+json' --data-urlencode 'query=ASK { ?s ?p ?o }' http://localhost:7019 >/dev/null",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  workbench:
+    image: ghcr.io/ehrhart/rdf-workbench:latest
+    container_name: cimple-workbench
+    environment:
+      TRIPLESTORE_PROVIDER: qlever
+      SPARQL_ENDPOINT: http://qlever:7019
+      SPARQL_TIMEOUT_MS: ${SPARQL_TIMEOUT_MS:-120000}
+      WORKBENCH_NAME: CIMPLE Workbench
+      WORKBENCH_URL: ${WORKBENCH_URL:-https://data.cimple.eu}
+      RESOURCE_BASE_URI: http://data.cimple.eu
+      WORKBENCH_DB_PATH: /data/workbench.sqlite
+      ALLOW_ANONYMOUS_READ: "1"
+      BOOTSTRAP_ADMIN_USERNAME: ${WORKBENCH_ADMIN_USER:-dba}
+      BOOTSTRAP_ADMIN_PASSWORD: ${WORKBENCH_ADMIN_PASSWORD:?WORKBENCH_ADMIN_PASSWORD must be set}
+      QLEVER_ACCESS_TOKEN: ${QLEVER_ACCESS_TOKEN:-}
+    volumes:
+      - workbench-data:/data
+    ports:
+      - "127.0.0.1:3020:3000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
