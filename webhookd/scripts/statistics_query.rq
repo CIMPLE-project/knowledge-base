@@ -1,3 +1,4 @@
+PREFIX schema: <http://schema.org/>
 SELECT (COUNT(?claim) AS ?nbClaim) (COUNT(?organization) AS ?nbOrganizations) (COUNT(DISTINCT ?language) AS ?nbLanguages) (COUNT(DISTINCT ?entity) AS ?nbEntities)
 WHERE {
   { ?organization a schema:Organization }
