@@ -102,17 +102,6 @@ if [ ! -f "/data/claimreview-kg_${TagName}.nt" ]; then
   exit 1
 fi
 
-# Split into chunks
-echo "[REDEPLOY] Splitting into chunks..."
-[ -d /data/chunks ] || mkdir /data/chunks
-python -u rdf_splitter.py -f "nt" "/data/claimreview-kg_${TagName}.nt" 50000 "/data/chunks"
-
-# Deploy to KB
-for chunkfile in /data/chunks/*.nt; do
-  echo "[REDEPLOY] Deploying ${chunkfile} to KB..."
-  python -u rdf_uploader.py "${chunkfile}"
-done
-
 # Create release
 /scripts/create-release.sh "/data/claimreview-kg_${TagName}.nt" "${TagName}" || exit 1
 
