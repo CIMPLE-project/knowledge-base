@@ -1,0 +1,33 @@
+[data]
+name = cimple-kg
+description = CIMPLE ClaimReview Knowledge Graph (CimpleKG)
+
+[index]
+INPUT_FILES =
+MULTI_INPUT_JSON = [
+  { "cmd": "cat {}", "format": "nt",  "graph": "http://data.cimple.eu/graph/claimreview", "for-each": "../source/dumps/graph/claimreview/claim-review.nt", "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/afp",         "for-each": "../source/dumps/graph/afp/*.ttl",         "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/birdwatch",   "for-each": "../source/dumps/graph/birdwatch/*.ttl",   "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/check-that",  "for-each": "../source/dumps/graph/check-that/*.ttl",  "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/dbpedia",     "for-each": "../source/dumps/graph/dbpedia/*.ttl",     "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/mediaeval",   "for-each": "../source/dumps/graph/mediaeval/*.ttl",   "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/propaganda",  "for-each": "../source/dumps/graph/propaganda/*.ttl",  "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/graph/semeval2024", "for-each": "../source/dumps/graph/semeval2024/*.ttl", "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/ontology",   "for-each": "../source/dumps/ontology/*.ttl",          "parallel": "false" },
+  { "cmd": "cat {}", "format": "ttl", "graph": "http://data.cimple.eu/vocabulary", "for-each": "../source/dumps/vocabulary/*.ttl",        "parallel": "false" },
+  { "cmd": "cat {}", "format": "nq",  "for-each": "../source/dumps/dbpedia-per-entity.nq", "parallel": "false" }]
+STXXL_MEMORY = 2G
+VOCABULARY_TYPE = on-disk-compressed
+TEXT_INDEX = from_literals
+ADD_HAS_WORD_TRIPLES = true
+
+[server]
+HOST_NAME = 0.0.0.0
+PORT = 7019
+MEMORY_FOR_QUERIES = 4G
+CACHE_MAX_SIZE = 2G
+TIMEOUT = 120s
+PERSIST_UPDATES = true
+
+[runtime]
+SYSTEM = native
