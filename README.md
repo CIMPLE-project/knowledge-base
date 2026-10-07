@@ -44,16 +44,6 @@ CimpleKG commonly uses the following namespaces and prefixes:
 | schema | <http://schema.org/>                          |
 | xsd    | <http://www.w3.org/2001/XMLSchema#>           |
 
-They can be imported into Virtuoso through the isql interface:
-
-```sql
-DB.DBA.XML_SET_NS_DECL ('dc', 'http://purl.org/dc/elements/1.1/', 2);
-DB.DBA.XML_SET_NS_DECL ('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', 2);
-DB.DBA.XML_SET_NS_DECL ('rnews', 'http://iptc.org/std/rNews/2011-10-07#', 2);
-DB.DBA.XML_SET_NS_DECL ('schema', 'http://schema.org/', 2);
-DB.DBA.XML_SET_NS_DECL ('xsd', 'http://www.w3.org/2001/XMLSchema#', 2);
-```
-
 ## 🚧 Initialising the Knowledge Graph
 
 This section covers the steps required to set up a new Knowledge Base for the first time.
@@ -67,81 +57,47 @@ This section covers the steps required to set up a new Knowledge Base for the fi
 
 1. Copy the `.env.example` file to `.env` and edit it to set the environment variables accordingly.
 
-   - `DBA_PASSWORD`: Password for the Virtuoso database.
-   - `SPARQL_UPDATE`: Enable SPARQL update queries.
-   - `VIRT_SPARQL_ResultSetMaxRows`: Maximum number of rows to return in a SPARQL query.
-   - `VIRT_SPARQL_MaxQueryCostEstimationTime`: Maximum time to estimate the cost of a SPARQL query.
-   - `VIRT_SPARQL_MaxQueryExecutionTime`: Maximum time to execute a SPARQL query, in seconds.
-   - `VIRT_Parameters_NumberOfBuffers`: Number of 8 KB database pages kept in memory as buffer cache.
-   - `VIRT_Parameters_MaxDirtyBuffers`: Maximum number of dirty buffers before a checkpoint is forced.
-   - `VIRT_HTTPServer_ServerThreads`: Number of HTTP server threads serving the SPARQL endpoint.
-   - `VIRT_HTTPServer_MaxClientConnections`: Maximum number of concurrent HTTP client connections.
-   - `VIRTUOSO_DATA_PATH`: Path to the Virtuoso data directory.
-   - `VIRTUOSO_PORT`: Port to expose the Virtuoso database.
+   - `QLEVER_ACCESS_TOKEN`: Access token for QLever update operations (at least 32 characters).
+   - `QLEVER_UID` / `QLEVER_GID`: UID/GID the QLever processes run as (defaults to 999).
+   - `QLEVER_INDEX_MEMORY`: Memory for the index build (default 2G).
+   - `QLEVER_MEMORY_FOR_QUERIES`: Memory for query processing (default 4G).
+   - `QLEVER_CACHE_MAX_SIZE`: Query cache size (default 2G).
+   - `QLEVER_QUERY_TIMEOUT`: Query timeout (default 120s).
+   - `WORKBENCH_ADMIN_USER` / `WORKBENCH_ADMIN_PASSWORD`: Admin account of the RDF Workbench UI.
+   - `WORKBENCH_URL`: Externally visible URL of the workbench (default https://data.cimple.eu).
+   - `SPARQL_TIMEOUT_MS`: Workbench-side SPARQL timeout (default 120000).
    - `WHD_HOOK_TIMEOUT`: Timeout for the webhook server.
    - `GITHUB_TOKEN`: GitHub token to create the [releases](https://github.com/CIMPLE-project/knowledge-base/releases).
    - `CIMPLE_FACTORS_MODELS_PATH`: Path to the CIMPLE factors models.
 
-1. Run docker compose to start the Virtuoso database and the webhook server.
+1. Run docker compose to start QLever, the RDF Workbench and the webhook server.
 
    ```bash
    docker compose up -d
    ```
 
-1. Generate a password for the webhook server and restart the service.
-
-   This step is optional but recommended if you plan to expose the webhook server to the internet.
+1. Build the first index. Copy RDF dumps into `qlever/dumps/` (see _Rebuilding the index_ below), then run:
 
    ```bash
-   docker compose exec webhookd htpasswd -B -c /etc/webhookd/.htpasswd api
-   docker compose restart webhookd
+   bash qlever/deploy-and-archive.sh
    ```
 
-### Loading data into the Knowledge base
+1. Configure the dereferenceable resource paths in the RDF Workbench admin UI (`claim-review`, `review`, `tweet`, `news-article`, `organization`, `rating`, `claim`, `entity`, `emotion`, `conspiracy`, `meme`, `political-leaning`, `sentiment`, `original_rating`). See _Dereferencing_ below.
 
-1. Copy all your RDF files into a `dumps` folder inside the data directory (defined by `VIRTUOSO_DATA_PATH` in the `.env` file).
+### Rebuilding the index
 
-   Directory structure example (in this case `VIRTUOSO_DATA_PATH` is set to `/var/docker/cimple/virtuoso/data`):
+The QLever index is rebuilt from the RDF dumps in `qlever/dumps/`. The directory structure is:
 
-   - `/var/docker/cimple/virtuoso/data/dumps/`
-     - `iptc/*.ttl`
-     - `agencefrancepresse/*.ttl`
+- `qlever/dumps/graph/<source>/*.ttl`: loaded into named graph `http://data.cimple.eu/graph/<source>`
+- `qlever/dumps/graph/claimreview/claim-review.nt`: the cumulative ClaimReview conversion, refreshed daily from the webhookd cache and deduplicated
+- `qlever/dumps/ontology/*.ttl`: loaded into named graph `http://data.cimple.eu/ontology`
+- `qlever/dumps/vocabulary/*.ttl`: loaded into named graph `http://data.cimple.eu/vocabulary`
+- `qlever/dumps/dbpedia-per-entity.nq`: one-time export of the per-entity DBpedia graphs
 
-1. Run the following command to load all dumps:
-
-   The script [deploy_all.sh](scripts/deploy_all.sh) will initialize the prefixes, and load all the vocabularies, IPTC codes, and RDF dumps.
-
-   ```bash
-   docker compose exec virtuoso sh /scripts/deploy_all.sh
-   ```
-
-### Manually loading a specific file
-
-You can also load certain files given a pattern using the [load.sh](scripts/load.sh) script.
-
-(Note: make sure that the files you wish to load have been copied to the `dumps` folder inside the Virtuoso data directory).
-
-For example, the following command will load all dumps contained in the folder "agencefrancepresse", starting with "2020\_", and ending with ".ttl":
+The rebuild script refreshes the claimreview file from the webhookd cache, archives the dumps to the public URL, builds a candidate index, swaps it in, verifies the triple counts, and only then pings healthchecks. To rebuild:
 
 ```bash
-docker compose exec virtuoso sh /scripts/load.sh -p5 -g "http://data.cimple.eu/agencefrancepresse/news" "agencefrancepresse" "2020_*.ttl"
-```
-
-To load all files from the folder "agencefrancepresse/FRA":
-
-```bash
-docker compose exec virtuoso sh /scripts/load.sh -p5 -g "http://data.cimple.eu/agencefrancepresse/news" "agencefrancepresse/FRA" "*.*"
-```
-
-Syntax: `load.sh [options] [graph] [dir path] [file mask]]`
-
-List of parameters:
-
-```
--h --help       Show help
--p --parallel   Number of parallel threads for loading RDF data (through rdf_loader_run())
--g --graph      Name of graph to load the data into
--c --clear      Clear graph before loading
+bash qlever/deploy-and-archive.sh
 ```
 
 ### Webhook server
@@ -164,36 +120,8 @@ curl -u api:$API_PASSWORD -XPOST http://localhost:8880/redeploy?url=https%3A%2F%
 
 ### Dereferencing
 
-The list of path to be dereferenced is in `dereferencing/config.yml`. See the full list of [URI patterns](URI.patterns.md) for reference.
+The RDF Workbench serves URI dereferencing as HTML resource pages. The list of dereferenceable path segments is configured in the workbench admin UI. The configured segments:
 
-For exporting the apache config and the script for adding them to Virtuoso, run:
+`claim-review`, `review`, `tweet`, `news-article`, `organization`, `rating`, `claim`, `entity`, `emotion`, `conspiracy`, `meme`, `political-leaning`, `sentiment`, `original_rating`
 
-```bash
-cd dereferencing
-npx list2dereference config.yml
-docker compose cp insert_vhost.sql virtuoso:/insert_vhost.sql
-docker compose exec -i virtuoso sh -c "isql-v -U dba -P \${DBA_PASSWORD} < /insert_vhost.sql"
-```
-
-Read more at https://github.com/pasqLisena/list2dereference
-
-### URL Shortening
-
-The service can be accessed at http://cimple.eurecom.fr/c/.
-
-To install the URL shortening service, run the following commands:
-
-```bash
-docker compose cp scripts/c_uri_dav.vad virtuoso:/usr/local/virtuoso-opensource/share/virtuoso/vad/c_uri_dav.vad
-docker compose exec -i virtuoso sh -c "isql-v -U dba -P \${DBA_PASSWORD} exec=\"DB.DBA.VAD_INSTALL('/usr/local/virtuoso-opensource/share/virtuoso/vad/c_uri_dav.vad');\""
-```
-
-The service is hosted on the route `/c`. You may have to update the apache2 Virtual Host configuration to map the route, for example (assuming Virtuoso is hosted on port 8890):
-
-```apacheconf
-<Location /c>
-    ProxyPreserveHost On
-    ProxyPass http://localhost:8890/c
-    ProxyPassReverse http://localhost:8890/c
-</Location>
-```
+See the full list of [URI patterns](URI.patterns.md) for reference. RDF access to the data remains at the [SPARQL endpoint](https://data.cimple.eu/sparql).
