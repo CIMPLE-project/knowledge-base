@@ -125,7 +125,7 @@ services:
     volumes:
       - workbench-data:/data
     ports:
-      - "127.0.0.1:3020:3000"
+      - "3020:3000"
     restart: unless-stopped
     healthcheck:
       test:
