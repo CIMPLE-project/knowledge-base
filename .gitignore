@@ -5,4 +5,9 @@ cr_data/
 .env
 webhookd/.htpasswd
 webhookd/cache/entities.json
-virtuoso-data
+qlever/dumps/
+qlever/snapshots/
+qlever/deploy.log
+qlever/.index-graph-counts
+qlever/.index-triple-count
+webhookd/cache/*.nt
