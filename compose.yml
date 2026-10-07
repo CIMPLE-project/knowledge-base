@@ -73,7 +73,7 @@ services:
       UID: ${QLEVER_UID:-999}
       GID: ${QLEVER_GID:-999}
       QLEVER_ACCESS_TOKEN: ${QLEVER_ACCESS_TOKEN:-}
-      QLEVER_MEMORY_FOR_QUERIES: ${QLEVER_MEMORY_FOR_QUERIES:-4G}
+      QLEVER_MEMORY_FOR_QUERIES: ${QLEVER_MEMORY_FOR_QUERIES:-16G}
       QLEVER_CACHE_MAX_SIZE: ${QLEVER_CACHE_MAX_SIZE:-2G}
       QLEVER_QUERY_TIMEOUT: ${QLEVER_QUERY_TIMEOUT:-120s}
     command:
@@ -83,7 +83,7 @@ services:
         qlever start
         --run-in-foreground
         --access-token "${QLEVER_ACCESS_TOKEN:-}"
-        --memory-for-queries "${QLEVER_MEMORY_FOR_QUERIES:-4G}"
+        --memory-for-queries "${QLEVER_MEMORY_FOR_QUERIES:-16G}"
         --cache-max-size "${QLEVER_CACHE_MAX_SIZE:-2G}"
         --timeout "${QLEVER_QUERY_TIMEOUT:-120s}"
     ports:

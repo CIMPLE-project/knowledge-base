@@ -60,7 +60,7 @@ This section covers the steps required to set up a new Knowledge Base for the fi
    - `QLEVER_ACCESS_TOKEN`: Access token for QLever update operations (at least 32 characters).
    - `QLEVER_UID` / `QLEVER_GID`: UID/GID the QLever processes run as (defaults to 999).
    - `QLEVER_INDEX_MEMORY`: Memory for the index build (default 2G).
-   - `QLEVER_MEMORY_FOR_QUERIES`: Memory for query processing (default 4G).
+   - `QLEVER_MEMORY_FOR_QUERIES`: Memory for query processing (default 16G).
    - `QLEVER_CACHE_MAX_SIZE`: Query cache size (default 2G).
    - `QLEVER_QUERY_TIMEOUT`: Query timeout (default 120s).
    - `WORKBENCH_ADMIN_USER` / `WORKBENCH_ADMIN_PASSWORD`: Admin account of the RDF Workbench UI.
