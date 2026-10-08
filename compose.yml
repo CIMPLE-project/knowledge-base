@@ -27,7 +27,7 @@ services:
 
   qlever-volume-admin:
     image: alpine:3.22
-    command: ["true"]
+    command: ["sh", "-c", "mkdir -p /data/index-next && chown 999:999 /data /data/index-next"]
     volumes:
       - type: volume
         source: qlever-data
@@ -35,24 +35,34 @@ services:
         volume:
           nocopy: true
     restart: "no"
-    profiles:
-      - qlever-init
 
   qlever-index:
     image: adfreiburg/qlever:commit-8d7945d
     container_name: cimple-qlever-index
+    entrypoint: bash
     working_dir: /data
+    depends_on:
+      qlever-volume-admin:
+        condition: service_completed_successfully
     environment:
-      UID: ${QLEVER_UID:-999}
-      GID: ${QLEVER_GID:-999}
       QLEVER_INDEX_MEMORY: ${QLEVER_INDEX_MEMORY:-2G}
+      QLEVER_FORCE_REBUILD: ${QLEVER_FORCE_REBUILD:-0}
     command:
       - -c
       - >-
+        if [ -d /data/index-current ] && [ $${QLEVER_FORCE_REBUILD:-0} != 1 ]; then
+        echo index-current-present-nothing-to-do;
+        exit 0;
+        fi;
+        rm -rf /data/index-next &&
+        mkdir -p /data/index-next &&
         cp /config/Qleverfile /data/index-next/Qleverfile &&
         cd /data/index-next &&
-        qlever index
-        --stxxl-memory "$${QLEVER_INDEX_MEMORY:-2G}"
+        qlever index --stxxl-memory $${QLEVER_INDEX_MEMORY:-2G} &&
+        cd /data &&
+        rm -rf /data/index-previous &&
+        { [ ! -d /data/index-current ] || mv /data/index-current /data/index-previous; } &&
+        mv /data/index-next /data/index-current
     volumes:
       - type: volume
         source: qlever-data
@@ -62,16 +72,18 @@ services:
       - ${QLEVER_DEPLOY_QLEVERFILE:-./qlever/Qleverfile}:/config/Qleverfile:ro
       - ./qlever/dumps:/data/source/dumps:ro
     restart: "no"
-    profiles:
-      - qlever-init
 
   qlever:
     image: adfreiburg/qlever:commit-8d7945d
     container_name: cimple-qlever
+    entrypoint: bash
     working_dir: /data
+    depends_on:
+      qlever-volume-admin:
+        condition: service_completed_successfully
+      qlever-index:
+        condition: service_completed_successfully
     environment:
-      UID: ${QLEVER_UID:-999}
-      GID: ${QLEVER_GID:-999}
       QLEVER_ACCESS_TOKEN: ${QLEVER_ACCESS_TOKEN:-}
       QLEVER_MEMORY_FOR_QUERIES: ${QLEVER_MEMORY_FOR_QUERIES:-16G}
       QLEVER_CACHE_MAX_SIZE: ${QLEVER_CACHE_MAX_SIZE:-2G}
@@ -82,10 +94,10 @@ services:
         cd /data/index-current &&
         qlever start
         --run-in-foreground
-        --access-token "${QLEVER_ACCESS_TOKEN:-}"
-        --memory-for-queries "${QLEVER_MEMORY_FOR_QUERIES:-16G}"
-        --cache-max-size "${QLEVER_CACHE_MAX_SIZE:-2G}"
-        --timeout "${QLEVER_QUERY_TIMEOUT:-120s}"
+        --access-token=${QLEVER_ACCESS_TOKEN:-}
+        --memory-for-queries ${QLEVER_MEMORY_FOR_QUERIES:-16G}
+        --cache-max-size ${QLEVER_CACHE_MAX_SIZE:-2G}
+        --timeout ${QLEVER_QUERY_TIMEOUT:-120s}
     ports:
       - "127.0.0.1:7019:7019"
     volumes:

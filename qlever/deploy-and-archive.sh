@@ -42,7 +42,7 @@ compose() {
 }
 
 volume_admin() {
-  compose --profile qlever-init run --rm --no-deps qlever-volume-admin sh -eu -c "$1"
+  compose run --rm --no-deps qlever-volume-admin sh -eu -c "$1"
 }
 
 volume_admin '
@@ -86,27 +86,11 @@ mv "$TMP" "$CLAIMREVIEW"
 echo "[$(date '+%F %T')] archiving dumps"
 tar -czf "$ARCHIVE" -C "$DUMPS" .
 
-echo "[$(date '+%F %T')] preparing /data/index-next"
-set -a; source "$REPO/.env"; set +a
-volume_admin "
-  rm -rf /data/index-next
-  mkdir -p /data/index-next
-  chown -R ${QLEVER_UID:-999}:${QLEVER_GID:-999} /data/index-next
-"
-echo "[$(date '+%F %T')] building index (qlever-index container)"
-QLEVER_DEPLOY_QLEVERFILE="$REPO/qlever/Qleverfile" \
-  compose --profile qlever-init run --rm --no-deps qlever-index \
+echo "[$(date '+%F %T')] building and swapping index"
+QLEVER_FORCE_REBUILD=1 QLEVER_DEPLOY_QLEVERFILE="$REPO/qlever/Qleverfile" \
+  compose run --rm --no-deps qlever-index \
   || fail "index build failed"
 
-echo "[$(date '+%F %T')] swapping index"
-volume_admin '
-  test -f /data/index-next/Qleverfile
-  rm -rf /data/index-previous
-  if [ -d /data/index-current ]; then
-    mv /data/index-current /data/index-previous
-  fi
-  mv /data/index-next /data/index-current
-'
 compose stop qlever >/dev/null 2>&1 || true
 compose up -d --force-recreate qlever
 
