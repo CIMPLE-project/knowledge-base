@@ -37,7 +37,7 @@ services:
     restart: "no"
 
   qlever-index:
-    image: adfreiburg/qlever:commit-8d7945d
+    image: adfreiburg/qlever:0.6.0
     container_name: cimple-qlever-index
     entrypoint: bash
     working_dir: /data
@@ -74,7 +74,7 @@ services:
     restart: "no"
 
   qlever:
-    image: adfreiburg/qlever:commit-8d7945d
+    image: adfreiburg/qlever:0.6.0
     container_name: cimple-qlever
     entrypoint: bash
     working_dir: /data
