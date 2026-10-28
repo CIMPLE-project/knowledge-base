@@ -9,6 +9,7 @@ ARCHIVE_DIR=/var/www/data.cimple.eu/dumps
 ARCHIVE="$ARCHIVE_DIR/cimple-kg-latest.tar.gz"
 COUNT_STATE="$REPO/qlever/.index-triple-count"
 LOG_FILE="$REPO/qlever/deploy.log"
+LOG_MAX_BYTES=5242880
 LOCK_FILE="$REPO/qlever/.deploy.lock"
 LOCK_WAIT_SECS=14400
 QLEVER_ENDPOINT=http://127.0.0.1:7019
@@ -45,6 +46,11 @@ if ! flock -n 9; then
   flock -w "$LOCK_WAIT_SECS" 9 || fail "another run still holds the lock after $((LOCK_WAIT_SECS / 3600))h"
   echo "[$(date '+%F %T')] lock acquired after waiting"
 fi
+
+if [ -f "$LOG_FILE" ] && [ "$(wc -c <"$LOG_FILE")" -gt "$LOG_MAX_BYTES" ]; then
+  mv "$LOG_FILE" "$LOG_FILE.old" || fail "could not rotate the deploy log"
+fi
+exec >> "$LOG_FILE" 2>&1
 
 ping_start
 
