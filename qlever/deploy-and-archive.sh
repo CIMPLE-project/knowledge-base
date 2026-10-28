@@ -9,6 +9,8 @@ ARCHIVE_DIR=/var/www/data.cimple.eu/dumps
 ARCHIVE="$ARCHIVE_DIR/cimple-kg-latest.tar.gz"
 COUNT_STATE="$REPO/qlever/.index-triple-count"
 LOG_FILE="$REPO/qlever/deploy.log"
+LOCK_FILE="$REPO/qlever/.deploy.lock"
+LOCK_WAIT_SECS=14400
 QLEVER_ENDPOINT=http://127.0.0.1:7019
 MIN_TOTAL=15000000
 
@@ -36,6 +38,15 @@ ping_start() {
     curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/start" || true
   fi
 }
+
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+  echo "[$(date '+%F %T')] another deploy-and-archive is running; waiting up to $((LOCK_WAIT_SECS / 3600))h"
+  flock -w "$LOCK_WAIT_SECS" 9 || fail "another run still holds the lock after $((LOCK_WAIT_SECS / 3600))h"
+  echo "[$(date '+%F %T')] lock acquired after waiting"
+fi
+
+ping_start
 
 compose() {
   docker compose -f "$REPO/compose.yml" "$@"
@@ -73,8 +84,6 @@ count_triples() {
     --data-urlencode 'query=SELECT (COUNT(*) AS ?c) WHERE { ?s ?p ?o }' \
   | jq -r '.results.bindings[0].c.value'
 }
-
-ping_start
 
 echo "[$(date '+%F %T')] refreshing claim-review.nt from cache"
 if [ ! -s "$CACHE" ]; then fail "cache file missing or empty: $CACHE"; fi
