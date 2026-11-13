@@ -18,7 +18,7 @@ services:
       - WHD_LOG_HOOK_OUTPUT=${WHD_LOG_HOOK_OUTPUT}
       - WHD_LOG_MODULES=${WHD_LOG_MODULES}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - HEALTHCHECKS_PING_URL=${HEALTHCHECKS_PING_URL}
+      - HEALTHCHECKS_REDEPLOY_PING_URL=${HEALTHCHECKS_REDEPLOY_PING_URL}
     volumes:
       - ./webhookd/scripts:/scripts
       - ./webhookd/cache:/data/cache

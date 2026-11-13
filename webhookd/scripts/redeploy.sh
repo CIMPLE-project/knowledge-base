@@ -19,8 +19,8 @@ cleanup() {
   # Check if error occurred
   if [ $last_status_code -ne 0 ]; then
     echo "[REDEPLOY] An error occurred. Sending a failure ping to healthchecks..."
-    if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
-      curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/fail"
+    if [ -n "${HEALTHCHECKS_REDEPLOY_PING_URL}" ]; then
+      curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_REDEPLOY_PING_URL}/fail"
     fi
   fi
 }
@@ -32,10 +32,10 @@ if [ -z "${url}" ]; then
 fi
 
 # Send a start ping to healthchecks
-if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
+if [ -n "${HEALTHCHECKS_REDEPLOY_PING_URL}" ]; then
   echo "[REDEPLOY] Pinging healthchecks (start)..."
   RID=$(cat /proc/sys/kernel/random/uuid)
-  curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/start?rid=${RID}"
+  curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_REDEPLOY_PING_URL}/start?rid=${RID}"
 fi
 
 echo "[REDEPLOY] URL: $url"
@@ -121,7 +121,7 @@ fi
 echo "[REDEPLOY] Cleanup completed."
 
 # Send a success ping to healthchecks
-if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
+if [ -n "${HEALTHCHECKS_REDEPLOY_PING_URL}" ]; then
     echo "[REDEPLOY] Pinging healthchecks (success)..."
-    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}?rid=${RID}"
+    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_REDEPLOY_PING_URL}?rid=${RID}"
 fi

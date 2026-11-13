@@ -16,26 +16,26 @@ QLEVER_ENDPOINT=http://127.0.0.1:7019
 
 cd "$REPO"
 
+exec >> "$LOG_FILE" 2>&1
+echo "[$(date '+%F %T')] === deploy-and-archive starting ==="
+
 if [ -f "$REPO/.env" ]; then
   set -a
   . "$REPO/.env"
   set +a
 fi
 
-exec >> "$LOG_FILE" 2>&1
-echo "[$(date '+%F %T')] === deploy-and-archive starting ==="
-
 fail() {
   echo "[$(date '+%F %T')] FAILED: $1"
-  if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
-    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/fail" || true
+  if [ -n "${HEALTHCHECKS_ARCHIVE_PING_URL}" ]; then
+    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_ARCHIVE_PING_URL}/fail" || true
   fi
   exit 1
 }
 
 ping_start() {
-  if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
-    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}/start" || true
+  if [ -n "${HEALTHCHECKS_ARCHIVE_PING_URL}" ]; then
+    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_ARCHIVE_PING_URL}/start" || true
   fi
 }
 
@@ -157,7 +157,7 @@ done
 echo "$COUNTS_OUT" > "$GRAPH_STATE"
 echo "[$(date '+%F %T')] per-graph counts ok: $COUNTS_OUT"
 
-if [ -n "${HEALTHCHECKS_PING_URL}" ]; then
-  curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_PING_URL}" || true
+if [ -n "${HEALTHCHECKS_ARCHIVE_PING_URL}" ]; then
+  curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_ARCHIVE_PING_URL}" || true
 fi
 echo "[$(date '+%F %T')] === deploy-and-archive done, serving $TOTAL triples ==="
